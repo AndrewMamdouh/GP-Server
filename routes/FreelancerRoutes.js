@@ -1,12 +1,12 @@
 import express from "express";
 
 import {
-    createFreelancer,
-    getFreelancer,
-    updateFreelancer,
-    deleteFreelancer,
-    getAllFreelancers
-} from "../controllers/Freelancer.controller.js";
+  createFreelancer,
+  getFreelancer,
+  updateFreelancer,
+  deleteFreelancer,
+  getAllFreelancers,
+} from "../controllers/FreelancerController.js";
 
 const FreelancerRouter = express.Router();
 

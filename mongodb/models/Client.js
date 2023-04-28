@@ -1,13 +1,13 @@
-import mongoose from 'mongoose';
-import { UserSchema } from './User.js';
+import { Schema, model } from "mongoose";
+import { UserSchema } from "./User.js";
 
-const ClientSchema = new mongoose.Schema({
-   ...UserSchema.obj,
-   joinDate:        { type: Date },
-   favList:         [{ type: mongoose.Schema.Types.ObjectId, ref: 'Freelancer' }],
-   suspensionState: { type: Boolean, default: false } 
+const ClientSchema = new Schema({
+  ...UserSchema.obj,
+  joinDate: { type: Date },
+  favList: [{ type: Schema.Types.ObjectId, ref: "Freelancer" }],
+  suspensionState: { type: Boolean, default: false },
 });
 
-const ClientModel = mongoose.model('Client', ClientSchema);
+const ClientModel = model("Client", ClientSchema);
 
 export default ClientModel;

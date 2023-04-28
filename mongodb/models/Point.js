@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import { Schema } from "mongoose";
 
-export const PointSchema = new mongoose.Schema({
-    type:        { type: String, enum: ['Point'], default: 'Point'},
-    coordinates: { type: [Number], required: true }
+export const PointSchema = new Schema({
+  type: { type: String, enum: ["Point"], default: "Point" },
+  coordinates: { type: [Number], required: true },
 });

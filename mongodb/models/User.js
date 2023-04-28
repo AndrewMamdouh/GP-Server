@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
-import { UserInfoSchema } from './UserInfo.js';
+import { Schema, model } from "mongoose";
+import { UserInfoSchema } from "./UserInfo.js";
 
-export const UserSchema = new mongoose.Schema({
-   userInfo:   { type: UserInfoSchema, required: true }
+export const UserSchema = new Schema({
+  userInfo: { type: UserInfoSchema, required: true },
 });
 
-const UserModel = mongoose.model('User', UserSchema);
+const UserModel = model("User", UserSchema);
 
 export default UserModel;

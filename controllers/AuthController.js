@@ -3,17 +3,18 @@ import { createToken } from "../utils/jwt.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import isEmail from "validator/lib/isEmail.js";
 import isEmpty from "validator/lib/isempty.js";
+import { verifyToken } from "../utils/jwt.js";
+import { default as TokenModel } from "../mongodb/models/Token.js";
 
-const { INTERNAL_ERROR, ALL_FIELDS_REQUIRED, INVALID_EMAIL, AUTH_REQUIRED, EMAIL_NOT_FOUND } = errorEnum
-const { CREATED, OK, NOT_FOUND } = httpResponseCodes
+const { ALL_FIELDS_REQUIRED, INVALID_EMAIL, AUTH_REQUIRED, EMAIL_NOT_FOUND } = errorEnum;
+const { OK } = httpResponseCodes;
 
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     // Validate user input
-    if (isEmpty(email) || isEmpty(password))
-      return next(ALL_FIELDS_REQUIRED);
+    if (isEmpty(email) || isEmpty(password)) return next(ALL_FIELDS_REQUIRED);
 
     // Check if email is valid
     if (!isEmail(email)) return next(INVALID_EMAIL);
@@ -29,57 +30,69 @@ const login = async (req, res, next) => {
     // Creating refresh token
     const refresh = createToken({ id: userInfo._id }, "REFRESH");
 
-    // Assigning refresh token in http-only cookie
+
+    const newTokenInfo = {
+      _userId: userInfo._id, 
+      token: refresh
+    };
+
+    console.log('refresh: ', refresh);
+
+    // Create token in our database
+    await TokenModel.create(newTokenInfo);
+
+    // Assigning refresh token in signed cookie
     res.cookie("Auth", refresh, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      signed: true,
       maxAge: 60 * 60 * 24 * 365,
     });
 
     // return access token
-    return res.status(OK).json({ access, refresh });
+    return res.status(OK).json({ access });
   } catch (err) {
-    console.log(err);
-    return next(INTERNAL_ERROR);
+    return next(err);
   }
 };
 
 const refreshToken = async (req, res, next) => {
   try {
-  const { refresh } = req.body;
+    const refreshToken = req.signedCookies.Auth;
 
-  if (!refresh) return next(AUTH_REQUIRED);
+    if (!refreshToken) return next(AUTH_REQUIRED);
 
-    let refreshToken = await RefreshToken.findOne({ where: { token: requestToken } });
+    const result = verifyToken(refreshToken, "REFRESH");
 
-    console.log(refreshToken)
+    if (
+      (result instanceof Error && result.name === "TokenExpiredError") ||
+      !(result instanceof Error)
+    ) {
 
-    if (!refreshToken) {
-      res.status(403).json({ message: "Refresh token is not in database!" });
-      return;
+      //Get token from database
+      const dbToken = await TokenModel.findOne({ token: refreshToken })
+
+      if(!dbToken) return res.status(httpResponseCodes.NOT_FOUND).json({});
+
+      // Create access token
+      const access = createToken({ id: dbToken._id }, "ACCESS");
+
+      // Creating refresh token
+      const refresh = createToken({ id: dbToken._id }, "REFRESH");
+
+      console.log("new refresh: ", refresh);
+
+      // Update token in database
+      await TokenModel.updateOne({ token: refreshToken }, { token: refresh })
+
+      // Assigning refresh token in new signed cookie
+      res.cookie("Auth", refresh, { signed: true });
+
+      // return access token
+      return res.status(OK).json({ access });
     }
 
-    if (RefreshToken.verifyExpiration(refreshToken)) {
-      RefreshToken.destroy({ where: { id: refreshToken.id } });
-      
-      res.status(403).json({
-        message: "Refresh token was expired. Please make a new signin request",
-      });
-      return;
-    }
-
-    const user = await refreshToken.getUser();
-    let newAccessToken = jwt.sign({ id: user.id }, config.secret, {
-      expiresIn: config.jwtExpiration,
-    });
-
-    return res.status(200).json({
-      accessToken: newAccessToken,
-      refreshToken: refreshToken.token,
-    });
+    return next(errorEnum.INVALID_AUTH);
   } catch (err) {
-    return res.status(500).send({ message: err });
+    return next(err);
   }
 };
 

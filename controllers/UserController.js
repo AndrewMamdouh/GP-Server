@@ -1,13 +1,12 @@
 import { default as UserInfo } from "../mongodb/models/UserInfo.js";
 import { default as User } from "../mongodb/models/User.js";
 import { hash } from "bcrypt";
-//import { createToken } from "../utils/jwt.js";
 import isEmail from "validator/lib/isEmail.js";
 import isEmpty from "validator/lib/isEmpty.js";
 import normalizeEmail from "validator/lib/normalizeEmail.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 
-const { INTERNAL_ERROR, ALL_FIELDS_REQUIRED, USERNAME_EXIST, EMAIL_EXIST, INVALID_EMAIL } = errorEnum
+const { ALL_FIELDS_REQUIRED, USERNAME_EXIST, EMAIL_EXIST, INVALID_EMAIL } = errorEnum
 const { CREATED, OK, NOT_FOUND } = httpResponseCodes
 
 const createUser = async (req, res, next) => {
@@ -37,7 +36,7 @@ const createUser = async (req, res, next) => {
 
     //Encrypt user password
     hash(password, 10, async (err, hashPass) => {
-      if (err) return next(INTERNAL_ERROR);
+      if (err) return next(err);
 
       const newUserInfo = {
         username,
@@ -54,28 +53,10 @@ const createUser = async (req, res, next) => {
         userInfo,
       });
 
-      // Create access token
-      //const access = createToken({ username } , "ACCESS");
-
-      // Creating refresh token
-      //const refresh = createToken({ username }, "REFRESH");
-
-      // Assigning refresh token in http-only cookie
-      // res.cookie("Auth", refresh, {
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: 'none',
-      //   maxAge: 60 * 60 * 24 * 365,
-      // });
-
-      // return access token
-      //return res.status(201).json({ access });
-
       return res.status(CREATED).json({});
     });
   } catch (err) {
-    console.log(err);
-    return next(INTERNAL_ERROR);
+    return next(err);
   }
 };
 
@@ -83,11 +64,10 @@ const getProfile = async (req, res, next) => {
   try {
     if(!req.user) return res;
     const userInfo = await UserInfo.findOne(req.user);
-    if (!userInfo) return res.status(NOT_FOUND);
+    if (!userInfo) return res.status(NOT_FOUND).json({});
     return res.status(OK).json(userInfo);
   } catch (err) {
-    console.log(err);
-    return next(INTERNAL_ERROR);
+    return next(err);
   }
 };
 
@@ -98,8 +78,7 @@ const updateProfile = async (req, res, next) => {
     const newUserInfo = await UserInfo.findOne(req.body);
     return res.status(OK).json(newUserInfo);
   } catch (err) {
-    console.log(err);
-    return next(INTERNAL_ERROR);
+    return next(err);
   }
 };
 

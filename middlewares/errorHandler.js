@@ -1,8 +1,8 @@
 import { errorEnum, errorCodes } from "../constants/errorCodes.js";
 
-export default function errorHandler(errCode, req, res, next) {
-  const error = errorCodes[errCode] || errorCodes[errorEnum.INTERNAL_ERROR];
-  console.log('lolllllllll');
-  res.status(error.statusCode).json({ message: error.message });
+export default function errorHandler(err, req, res, next) {
+  console.log(err);
+  const error = errorCodes[err] || errorCodes[errorEnum.INTERNAL_ERROR];
+  res.status(error.statusCode).json({ message: err instanceof Error ? err.message : error.message });
   next();
 }

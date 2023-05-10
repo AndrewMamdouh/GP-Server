@@ -19,8 +19,6 @@ const FreelancerSchema = new Schema({
   bookingOrders: [{ type: BookingOrderSchema }],
   portfolioItems: [{ type: PortfolioItemSchema }],
   packages: [{ type: PackageSchema }],
-  suspensionState: { type: Boolean, default: false },
-  verificationState: { type: Boolean, default: false },
 });
 
 const FreelancerModel = model("Freelancer", FreelancerSchema);

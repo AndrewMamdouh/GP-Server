@@ -1,8 +1,7 @@
 import { Schema } from "mongoose";
 
 export const PortfolioItemSchema = new Schema({
-  //id: { type: Schema.Types.ObjectId, unique: true },
-  date: { type: Date },
+  date: { type: Date, default: Date.now },
   owner: { type: Schema.Types.ObjectId, ref: "Freelancer" },
   url: { type: String, required: true },
 });

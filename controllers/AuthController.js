@@ -36,8 +36,6 @@ const login = async (req, res, next) => {
       token: refresh
     };
 
-    console.log('refresh: ', refresh);
-
     // Create token in our database
     await TokenModel.create(newTokenInfo);
 
@@ -77,8 +75,6 @@ const refreshToken = async (req, res, next) => {
 
       // Creating refresh token
       const refresh = createToken({ id: dbToken._id }, "REFRESH");
-
-      console.log("new refresh: ", refresh);
 
       // Update token in database
       await TokenModel.updateOne({ token: refreshToken }, { token: refresh })

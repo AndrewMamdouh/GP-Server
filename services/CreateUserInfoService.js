@@ -14,7 +14,7 @@ const {
   INVALID_USERNAME,
 } = errorEnum;
 
-const CreateUserInfo = ({ username, fullName, email, password }) => {
+const CreateUserInfoService = ({ username, fullName, email, password }) => {
   // Validate user input
   if (
     isNull(username) ||
@@ -66,4 +66,4 @@ const CreateUserInfo = ({ username, fullName, email, password }) => {
   };
 };
 
-export default CreateUserInfo;
+export default CreateUserInfoService;

@@ -1,7 +1,7 @@
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
 import { default as UserInfo } from "../mongodb/models/UserInfo.js";
-import CreateUserInfo from "../services/createUserInfo.js";
-import CreateFreelancerInfo from "../services/CreateFreelancerInfo.js";
+import CreateUserInfoService from "../services/CreateUserInfoService.js";
+import CreateFreelancerInfoService from "../services/CreateFreelancerInfoService.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import AppError from "../constants/AppError.js";
 import GetCity from "../services/GetCity.js";
@@ -24,13 +24,16 @@ const createFreelancer = async (req, res, next) => {
       description,
     } = req.body;
 
-    const validUserInfo = CreateUserInfo({
+    // Validate user input
+    const validUserInfo = CreateUserInfoService({
       username,
       fullName,
       email,
       password,
     });
-    const validFreelancerInfo = CreateFreelancerInfo({
+
+    // Validate user input
+    const validFreelancerInfo = CreateFreelancerInfoService({
       type,
       address,
       phoneNum,

@@ -1,28 +1,29 @@
+import { compareSync } from 'bcrypt';
 import { default as UserInfo } from "../mongodb/models/UserInfo.js";
 import { createToken } from "../utils/jwt.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
-import isEmail from "validator/lib/isEmail.js";
-import isEmpty from "validator/lib/isempty.js";
 import { verifyToken } from "../utils/jwt.js";
 import { default as TokenModel } from "../mongodb/models/Token.js";
+import LoginService from "../services/LoginService.js";
+import AppError from "../constants/AppError.js";
 
-const { ALL_FIELDS_REQUIRED, INVALID_EMAIL, AUTH_REQUIRED, EMAIL_NOT_FOUND } = errorEnum;
+const { AUTH_REQUIRED, EMAIL_NOT_FOUND, WRONG_PASSWORD } = errorEnum;
 const { OK } = httpResponseCodes;
 
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Validate user input
-    if (isEmpty(email) || isEmpty(password)) return next(ALL_FIELDS_REQUIRED);
-
-    // Check if email is valid
-    if (!isEmail(email)) return next(INVALID_EMAIL);
+    const validCredentials = LoginService({ email, password });
 
     // Check if user already exist
     // Validate if user exist in our database
-    const userInfo = await UserInfo.findOne({ email });
-    if (!userInfo) return next(EMAIL_NOT_FOUND);
+    const userInfo = await UserInfo.findOne({ email: validCredentials.email });
+    if (!userInfo) throw new AppError(EMAIL_NOT_FOUND);
+
+    const isPasswordValid = compareSync(password, userInfo.password);
+
+    if(!isPasswordValid) throw new AppError(WRONG_PASSWORD);
 
     // Create access token
     const access = createToken({ id: userInfo._id }, "ACCESS");
@@ -56,7 +57,7 @@ const refreshToken = async (req, res, next) => {
   try {
     const refreshToken = req.signedCookies.Auth;
 
-    if (!refreshToken) return next(AUTH_REQUIRED);
+    if (!refreshToken) throw new AppError(AUTH_REQUIRED);
 
     const result = verifyToken(refreshToken, "REFRESH");
 
@@ -86,7 +87,7 @@ const refreshToken = async (req, res, next) => {
       return res.status(OK).json({ access });
     }
 
-    return next(errorEnum.INVALID_AUTH);
+    throw new AppError(errorEnum.INVALID_AUTH);
   } catch (err) {
     return next(err);
   }

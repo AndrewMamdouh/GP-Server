@@ -23,7 +23,7 @@ const {
   INVALID_PHONE,
 } = errorEnum;
 
-const CreateFreelancerInfo = ({
+const CreateFreelancerInfoService = ({
   type,
   address,
   phoneNum,
@@ -75,4 +75,4 @@ const CreateFreelancerInfo = ({
   };
 };
 
-export default CreateFreelancerInfo;
+export default CreateFreelancerInfoService;

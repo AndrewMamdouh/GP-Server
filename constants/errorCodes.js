@@ -17,6 +17,7 @@ export const errorEnum = {
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
   INVALID_AUTH: 'INVALID_AUTH',
   EMAIL_NOT_FOUND: 'EMAIL_NOT_FOUND',
+  WRONG_PASSWORD: 'WRONG_PASSWORD',
   LOCATION_API_ERROR: 'LOCATION_API_ERROR',
   INTERNAL_ERROR: 'INTERNAL_ERROR'
 }
@@ -112,6 +113,11 @@ export const errorCodes = {
   [errorEnum.EMAIL_NOT_FOUND]: {
     statusCode: httpResponseCodes.NOT_FOUND,
     message: "This email address isn't registered.",
+  },
+
+  [errorEnum.WRONG_PASSWORD]: {
+    statusCode: httpResponseCodes.UNAUTHORIZED,
+    message: "Password is incorrect.",
   },
 
   [errorEnum.LOCATION_API_ERROR]: {

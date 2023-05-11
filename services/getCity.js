@@ -1,15 +1,23 @@
 import axios from "axios";
+import AppError from "../constants/AppError.js";
 import { options } from "../constants/axiosGeocoding.js";
+import { errorEnum } from "../constants/errorCodes.js";
 
-export const getCity = async (lat, lon) => {
-  const { data } = await axios.request({
-    ...options,
-    params: {
-      lat,
-      lon,
-      "accept-language": "en",
-      polygon_threshold: "0.0",
-    },
-  });
-  return data;
+const GetCity = async (lat, lon) => {
+  try {
+    const { data } = await axios.request({
+      ...options,
+      params: {
+        lat,
+        lon,
+        "accept-language": "en",
+        polygon_threshold: "0.0",
+      },
+    });
+    return data;
+  } catch (err) {
+    return new AppError(errorEnum.LOCATION_API_ERROR);
+  }
 };
+
+export default GetCity;

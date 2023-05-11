@@ -1,0 +1,4 @@
+export const freelancerType = {
+    PHOTOGRAPHER: 'PHOTOGRAPHER',
+    GRAPHIC_DESIGNER: 'GRAPHIC_DESIGNER'
+}

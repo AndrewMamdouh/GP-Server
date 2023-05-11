@@ -11,3 +11,5 @@ export const hasLength = (data, len) => data.length === len;
 export const isBetween = (lb, num, up) => num > lb && num < up;
 
 export const isNum = (num) => typeof num === 'number';
+
+export const isMember = (elem, arr) => arr.includes(elem);

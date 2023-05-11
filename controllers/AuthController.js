@@ -37,8 +37,15 @@ const login = async (req, res, next) => {
       token: refresh
     };
 
-    // Create token in our database
-    await TokenModel.create(newTokenInfo);
+     //Get token from database
+     const dbToken = await TokenModel.findOne({ _userId: userInfo._id })
+
+     // create token in database
+     if(!dbToken) await TokenModel.create(newTokenInfo);
+
+     // Update token in database
+     else await TokenModel.updateOne({ _userId: userInfo._id }, { token: refresh })
+
 
     // Assigning refresh token in signed cookie
     res.cookie("Auth", refresh, {
@@ -72,13 +79,13 @@ const refreshToken = async (req, res, next) => {
       if(!dbToken) return res.status(httpResponseCodes.NOT_FOUND).json({});
 
       // Create access token
-      const access = createToken({ id: dbToken._id }, "ACCESS");
+      const access = createToken({ id: dbToken._userId }, "ACCESS");
 
       // Creating refresh token
-      const refresh = createToken({ id: dbToken._id }, "REFRESH");
+      const refresh = createToken({ id: dbToken._userId }, "REFRESH");
 
       // Update token in database
-      await TokenModel.updateOne({ token: refreshToken }, { token: refresh })
+      await TokenModel.updateOne({ _userId: dbToken._userId }, { token: refresh })
 
       // Assigning refresh token in new signed cookie
       res.cookie("Auth", refresh, { signed: true });

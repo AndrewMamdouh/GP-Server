@@ -3,6 +3,7 @@ import { freelancerType } from "./freelancer.js";
 export const errorEnum = {
   ALL_FIELDS_REQUIRED: 'ALL_FIELDS_REQUIRED',
   AUTH_REQUIRED: 'AUTH_REQUIRED',
+  USER_ID_REQUIRED: 'USER_ID_REQUIRED',
   USERNAME_EXIST: 'USERNAME_EXIST',
   EMAIL_EXIST: 'EMAIL_EXIST',
   INVALID_USERNAME: 'INVALID_USERNAME',
@@ -43,6 +44,11 @@ export const errorCodes = {
   [errorEnum.AUTH_REQUIRED]: {
     statusCode: httpResponseCodes.UNAUTHORIZED,
     message: "Authorization credentials are required.",
+  },
+
+  [errorEnum.USER_ID_REQUIRED]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "User ID is required.",
   },
 
   [errorEnum.USERNAME_EXIST]: {

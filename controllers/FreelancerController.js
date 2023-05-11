@@ -5,9 +5,10 @@ import CreateFreelancerInfoService from "../services/CreateFreelancerInfoService
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import AppError from "../constants/AppError.js";
 import GetCity from "../services/GetCity.js";
+import { isNull } from "../utils/checkValidity.js";
 
-const { USERNAME_EXIST, EMAIL_EXIST } = errorEnum;
-const { CREATED } = httpResponseCodes;
+const { USERNAME_EXIST, EMAIL_EXIST, USER_ID_REQUIRED } = errorEnum;
+const { CREATED, NOT_FOUND, OK } = httpResponseCodes;
 
 const createFreelancer = async (req, res, next) => {
   try {
@@ -78,8 +79,45 @@ const createFreelancer = async (req, res, next) => {
   }
 };
 
-const getFreelancer = async (req, res) => {
-  res.json("Freelancer Returned!");
+const getFreelancer = async (req, res, next) => {
+  try{
+    // Get freelancer ID
+    const id = req.params.id;
+
+    // Check if valid id
+    if(isNull(id)) throw new AppError(USER_ID_REQUIRED);
+
+    // Get freelancer data
+    const freelancerData = await Freelancer.findById(id, { _id: false, __v: false }).exec();
+
+    // Check if found freelancer 
+    if(!freelancerData) return res.status(NOT_FOUND).json({});
+
+    // Get freelancer userInfo
+    const userInfo = await UserInfo.findById(freelancerData.userInfo._id, { _id: false, __v: false }).exec();
+
+    // Check if found freelancer userInfo 
+    if(!userInfo) return res.status(NOT_FOUND).json({});
+
+    // Gather all freelancer info
+    const allData = {
+      ...freelancerData.toJSON(),
+      ...userInfo.toJSON()
+    }
+
+    console.log(allData)
+
+    // Sanitize returned data
+    delete allData.password;
+    delete allData.userInfo;
+
+    console.log(allData)
+
+    return res.status(OK).json(allData);
+
+  } catch(err){
+    return next(err);
+  }
 };
 
 export { createFreelancer, getFreelancer };

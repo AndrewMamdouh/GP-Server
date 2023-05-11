@@ -3,6 +3,10 @@ export const errorEnum = {
   INVALID_EMAIL: 'INVALID_EMAIL',
   USERNAME_EXIST: 'USERNAME_EXIST',
   EMAIL_EXIST: 'EMAIL_EXIST',
+  INVALID_LOCATION: 'INVALID_LOCATION',
+  INVALID_HOURLY_RATE: 'INVALID_HOURLY_RATE',
+  INVALID_PHONE: 'INVALID_PHONE',
+  INVALID_BIO: 'INVALID_BIO',
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
   AUTH_REQUIRED: 'AUTH_REQUIRED',
   INVALID_AUTH: 'INVALID_AUTH',
@@ -40,6 +44,26 @@ export const errorCodes = {
   [errorEnum.EMAIL_EXIST]: {
     statusCode: httpResponseCodes.CONFLICT,
     message: "Email address already exists.",
+  },
+
+  [errorEnum.INVALID_LOCATION]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Address must be an array of two numeric values [latitude, longitude].",
+  },
+
+  [errorEnum.INVALID_HOURLY_RATE]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Hourly rate must be a number [10, 1000].",
+  },
+
+  [errorEnum.INVALID_PHONE]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Mobile number must be in one of the following formats: {0-10-xxxx-xxxx, 0-11-xxxx-xxxx, 0-12-xxxx-xxxx, 0-15-xxxx-xxxx}.",
+  },
+
+  [errorEnum.INVALID_BIO]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Description must be at least 20 characters and not exceeding 1000 characters.",
   },
 
   [errorEnum.INVALID_CREDENTIALS]: {

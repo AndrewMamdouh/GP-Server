@@ -1,5 +1,4 @@
 import { default as UserInfo } from "../mongodb/models/UserInfo.js";
-import { default as User } from "../mongodb/models/User.js";
 import { hash } from "bcrypt";
 import isEmail from "validator/lib/isEmail.js";
 import isEmpty from "validator/lib/isEmpty.js";
@@ -47,11 +46,6 @@ const createUser = async (req, res, next) => {
 
       // Create user info in our database
       const userInfo = await UserInfo.create(newUserInfo);
-
-      // Create user in our database
-      await User.create({
-        userInfo,
-      });
 
       return res.status(CREATED).json({});
     });

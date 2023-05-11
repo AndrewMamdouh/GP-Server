@@ -1,8 +1,7 @@
 import { Schema, model } from "mongoose";
-import { UserSchema } from "./User.js";
 
 const ClientSchema = new Schema({
-  ...UserSchema.obj,
+  userInfo: { type: Schema.Types.ObjectId, ref: "UserInfo" },
   favList: [{ type: Schema.Types.ObjectId, ref: "Freelancer" }],
 });
 

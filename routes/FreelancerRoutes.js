@@ -3,17 +3,12 @@ import express from "express";
 import {
   createFreelancer,
   getFreelancer,
-  updateFreelancer,
-  deleteFreelancer,
-  getAllFreelancers,
 } from "../controllers/FreelancerController.js";
+import errorHandler from "../middlewares/errorHandler.js";
 
 const FreelancerRouter = express.Router();
 
-FreelancerRouter.route("/").post(createFreelancer);
-FreelancerRouter.route("/:uid").get(getFreelancer);
-FreelancerRouter.route("/:uid").patch(updateFreelancer);
-FreelancerRouter.route("/:uid").delete(deleteFreelancer);
-FreelancerRouter.route("/").get(getAllFreelancers);
+FreelancerRouter.route("/").post(createFreelancer, errorHandler);
+FreelancerRouter.route("/:id").get(getFreelancer);
 
 export default FreelancerRouter;

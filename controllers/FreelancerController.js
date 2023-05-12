@@ -43,10 +43,10 @@ const createFreelancer = async (req, res, next) => {
     });
 
     // Check if user already exist
-    const isFreelancerUsernameExists = await Freelancer.findOne({ username });
-    const isClientUsernameExists = await Client.findOne({ username });
-    const isFreelancerEmailExists = await Freelancer.findOne({ email });
-    const isClientEmailExists = await Client.findOne({ email });
+    const isFreelancerUsernameExists = await Freelancer.findOne({ username: validUserInfo.username });
+    const isClientUsernameExists = await Client.findOne({ username: validUserInfo.username });
+    const isFreelancerEmailExists = await Freelancer.findOne({ email: validUserInfo.email });
+    const isClientEmailExists = await Client.findOne({ email: validUserInfo.email });
 
     if (isFreelancerUsernameExists || isClientUsernameExists)
       throw new AppError(USERNAME_EXIST);

@@ -12,4 +12,6 @@ export const isBetween = (lb, num, up) => num > lb && num < up;
 
 export const isNum = (num) => typeof num === 'number';
 
+export const isString = (str) => typeof str === 'string';
+
 export const isMember = (elem, arr) => arr.includes(elem);

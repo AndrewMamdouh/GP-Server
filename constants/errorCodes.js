@@ -1,4 +1,4 @@
-import { freelancerType } from "./freelancer.js";
+import { freelancerTypes } from "./models.js";
 
 export const errorEnum = {
   ALL_FIELDS_REQUIRED: 'ALL_FIELDS_REQUIRED',
@@ -83,7 +83,7 @@ export const errorCodes = {
 
   [errorEnum.INVALID_FREELANCER_TYPE]: {
     statusCode: httpResponseCodes.BAD_REQUEST,
-    message: `Type should be one of these: ${Object.values(freelancerType).join(', ')}`,
+    message: `Type should be one of these: ${Object.values(freelancerTypes).join(', ')}`,
   },
 
   [errorEnum.INVALID_LOCATION]: {

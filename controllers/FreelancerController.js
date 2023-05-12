@@ -1,5 +1,5 @@
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
-import { default as UserInfo } from "../mongodb/models/UserInfo.js";
+import { default as Client } from "../mongodb/models/Client.js";
 import CreateUserInfoService from "../services/CreateUserInfoService.js";
 import CreateFreelancerInfoService from "../services/CreateFreelancerInfoService.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
@@ -18,7 +18,7 @@ const createFreelancer = async (req, res, next) => {
       fullName,
       email,
       password,
-      type,
+      freelancerType,
       address,
       phoneNum,
       hourlyRate,
@@ -35,7 +35,7 @@ const createFreelancer = async (req, res, next) => {
 
     // Validate user input
     const validFreelancerInfo = CreateFreelancerInfoService({
-      type,
+      freelancerType,
       address,
       phoneNum,
       hourlyRate,
@@ -43,24 +43,24 @@ const createFreelancer = async (req, res, next) => {
     });
 
     // Check if user already exist
-    // Validate if user exist in our database
-    const isUsernameExists = await UserInfo.findOne({ username });
-    const isEmailExists = await UserInfo.findOne({ email });
+    const isFreelancerUsernameExists = await Freelancer.findOne({ username });
+    const isClientUsernameExists = await Client.findOne({ username });
+    const isFreelancerEmailExists = await Freelancer.findOne({ email });
+    const isClientEmailExists = await Client.findOne({ email });
 
-    if (isUsernameExists) throw new AppError(USERNAME_EXIST);
-    if (isEmailExists) throw new AppError(EMAIL_EXIST);
+    if (isFreelancerUsernameExists || isClientUsernameExists)
+      throw new AppError(USERNAME_EXIST);
+    if (isFreelancerEmailExists || isClientEmailExists)
+      throw new AppError(EMAIL_EXIST);
 
     // Get User State
     const result = await GetCity(...validFreelancerInfo.address);
 
-    // Create user info in our database
-    const newUserInfo = await UserInfo.create(validUserInfo);
-
     const newFreelancerInfo = {
-      userInfo: newUserInfo._id,
+      ...validUserInfo,
       ...validFreelancerInfo,
       address: {
-        name: result instanceof AppError ? 'Egypt' : result.address.state,
+        name: result instanceof AppError ? "Egypt" : result.address.state,
         location: {
           coordinates: validFreelancerInfo.address,
         },
@@ -68,10 +68,7 @@ const createFreelancer = async (req, res, next) => {
     };
 
     // Create freelancer in our database
-    await Freelancer.create({
-      userInfo: newUserInfo._id,
-      ...newFreelancerInfo,
-    });
+    await Freelancer.create(newFreelancerInfo);
 
     return res.status(CREATED).json({});
   } catch (err) {
@@ -80,42 +77,30 @@ const createFreelancer = async (req, res, next) => {
 };
 
 const getFreelancer = async (req, res, next) => {
-  try{
+  try {
     // Get freelancer ID
     const id = req.params.id;
 
     // Check if valid id
-    if(isNull(id)) throw new AppError(USER_ID_REQUIRED);
+    if (isNull(id)) throw new AppError(USER_ID_REQUIRED);
 
     // Get freelancer data
-    const freelancerData = await Freelancer.findById(id, { _id: false, __v: false }).exec();
+    const freelancerData = await Freelancer.findById(id, {
+      _id: false,
+      __v: false,
+      password: false,
+    }).exec();
 
-    // Check if found freelancer 
-    if(!freelancerData) return res.status(NOT_FOUND).json({});
-
-    // Get freelancer userInfo
-    const userInfo = await UserInfo.findById(freelancerData.userInfo._id, { _id: false, __v: false }).exec();
-
-    // Check if found freelancer userInfo 
-    if(!userInfo) return res.status(NOT_FOUND).json({});
+    // Check if found freelancer
+    if (!freelancerData) return res.status(NOT_FOUND).json({});
 
     // Gather all freelancer info
     const allData = {
       ...freelancerData.toJSON(),
-      ...userInfo.toJSON()
-    }
-
-    console.log(allData)
-
-    // Sanitize returned data
-    delete allData.password;
-    delete allData.userInfo;
-
-    console.log(allData)
+    };
 
     return res.status(OK).json(allData);
-
-  } catch(err){
+  } catch (err) {
     return next(err);
   }
 };

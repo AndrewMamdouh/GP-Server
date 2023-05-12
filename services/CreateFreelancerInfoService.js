@@ -1,6 +1,6 @@
 import AppError from "../constants/AppError.js";
 import { errorEnum } from "../constants/errorCodes.js";
-import { freelancerType } from "../constants/freelancer.js";
+import { freelancerTypes } from "../constants/models.js";
 import validator from "validator";
 import {
   isNull,
@@ -24,7 +24,7 @@ const {
 } = errorEnum;
 
 const CreateFreelancerInfoService = ({
-  type,
+  freelancerType,
   address,
   phoneNum,
   hourlyRate,
@@ -32,19 +32,19 @@ const CreateFreelancerInfoService = ({
 }) => {
   // Validate user input
   if (
-    isNull(type) ||
+    isNull(freelancerType) ||
     isNull(address) ||
     isNull(phoneNum) ||
     isNull(hourlyRate) ||
     isNull(description) ||
-    isEmpty(type) ||
+    isEmpty(freelancerType) ||
     isEmpty(phoneNum) ||
     isEmpty(description)
   )
     throw new AppError(ALL_FIELDS_REQUIRED);
 
   // Check if type is valid
-  if (!isMember(type, Object.values(freelancerType)))
+  if (!isMember(freelancerType, Object.values(freelancerTypes)))
     throw new AppError(INVALID_FREELANCER_TYPE);
 
   // Check if address is valid
@@ -67,7 +67,7 @@ const CreateFreelancerInfoService = ({
   if (!isMobilePhone(phoneNum, "ar-EG")) throw new AppError(INVALID_PHONE);
 
   return {
-    type,
+    freelancerType,
     address,
     phoneNum,
     hourlyRate,

@@ -1,5 +1,6 @@
-import { compareSync } from 'bcrypt';
-import { default as UserInfo } from "../mongodb/models/UserInfo.js";
+import { compareSync } from "bcrypt";
+import { default as Client } from "../mongodb/models/Client.js";
+import { default as Freelancer } from "../mongodb/models/Freelancer.js";
 import { createToken } from "../utils/jwt.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import { verifyToken } from "../utils/jwt.js";
@@ -16,36 +17,42 @@ const login = async (req, res, next) => {
 
     const validCredentials = LoginService({ email, password });
 
-    // Check if user already exist
+    // Check if user is client
+    const isClient = await Client.findOne({ email: validCredentials.email });
+
+    // Check if user is freelancer
+    const isFreelancer = await Freelancer.findOne({
+      email: validCredentials.email,
+    });
+
     // Validate if user exist in our database
-    const userInfo = await UserInfo.findOne({ email: validCredentials.email });
-    if (!userInfo) throw new AppError(EMAIL_NOT_FOUND);
+    if (!isClient && !isFreelancer) throw new AppError(EMAIL_NOT_FOUND);
+
+    const userInfo = isClient || isFreelancer;
 
     const isPasswordValid = compareSync(password, userInfo.password);
 
-    if(!isPasswordValid) throw new AppError(WRONG_PASSWORD);
+    if (!isPasswordValid) throw new AppError(WRONG_PASSWORD);
 
     // Create access token
     const access = createToken({ id: userInfo._id }, "ACCESS");
 
-    // Creating refresh token
+    // Create refresh token
     const refresh = createToken({ id: userInfo._id }, "REFRESH");
 
-
     const newTokenInfo = {
-      _userId: userInfo._id, 
-      token: refresh
+      _userId: userInfo._id,
+      token: refresh,
     };
 
-     //Get token from database
-     const dbToken = await TokenModel.findOne({ _userId: userInfo._id })
+    //Get token from database
+    const dbToken = await TokenModel.findOne({ _userId: userInfo._id });
 
-     // create token in database
-     if(!dbToken) await TokenModel.create(newTokenInfo);
-
-     // Update token in database
-     else await TokenModel.updateOne({ _userId: userInfo._id }, { token: refresh })
-
+    // create token in database
+    if (!dbToken) await TokenModel.create(newTokenInfo);
+    // Update token in database
+    else
+      await TokenModel.updateOne({ _userId: userInfo._id }, { token: refresh });
 
     // Assigning refresh token in signed cookie
     res.cookie("Auth", refresh, {
@@ -72,11 +79,10 @@ const refreshToken = async (req, res, next) => {
       (result instanceof Error && result.name === "TokenExpiredError") ||
       !(result instanceof Error)
     ) {
-
       //Get token from database
-      const dbToken = await TokenModel.findOne({ token: refreshToken })
+      const dbToken = await TokenModel.findOne({ token: refreshToken });
 
-      if(!dbToken) return res.status(httpResponseCodes.NOT_FOUND).json({});
+      if (!dbToken) return res.status(httpResponseCodes.NOT_FOUND).json({});
 
       // Create access token
       const access = createToken({ id: dbToken._userId }, "ACCESS");
@@ -85,7 +91,10 @@ const refreshToken = async (req, res, next) => {
       const refresh = createToken({ id: dbToken._userId }, "REFRESH");
 
       // Update token in database
-      await TokenModel.updateOne({ _userId: dbToken._userId }, { token: refresh })
+      await TokenModel.updateOne(
+        { _userId: dbToken._userId },
+        { token: refresh }
+      );
 
       // Assigning refresh token in new signed cookie
       res.cookie("Auth", refresh, { signed: true });

@@ -1,14 +1,20 @@
 import { Schema, model } from "mongoose";
+import { UserInfoSchema } from "./UserInfo.js";
 import { LocationSchema } from "./Location.js";
 import { PortfolioItemSchema } from "./PortfolioItem.js";
 import { PackageSchema } from "./Package.js";
-import { freelancerType } from "../../constants/freelancer.js";
+import { userTypes, freelancerTypes } from "../../constants/models.js";
 
 const FreelancerSchema = new Schema({
-  userInfo: { type: Schema.Types.ObjectId, ref: "UserInfo" },
-  type: {
+  ...UserInfoSchema.obj,
+  userType: {
     type: String,
-    enum: Object.values(freelancerType),
+    enum: Object.values(userTypes),
+    default: userTypes.FREELANCER
+  },
+  freelancerType: {
+    type: String,
+    enum: Object.values(freelancerTypes),
     required: true
   },
   address: { type: LocationSchema, required: true },

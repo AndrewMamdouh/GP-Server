@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema } from "mongoose";
 
 export const UserInfoSchema = new Schema({
   username: { type: String, required: true },
@@ -7,7 +7,3 @@ export const UserInfoSchema = new Schema({
   password: { type: String, required: true },
   joinDate: { type: Date, default: Date.now },
 });
-
-const UserInfoModel = model("UserInfo", UserInfoSchema);
-
-export default UserInfoModel;

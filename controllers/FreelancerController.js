@@ -6,6 +6,7 @@ import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import AppError from "../constants/AppError.js";
 import GetCity from "../services/GetCity.js";
 import { isNull } from "../utils/checkValidity.js";
+import SendVerificationEmail from "../services/SendVerificationEmail.js";
 
 const { USERNAME_EXIST, EMAIL_EXIST, USER_ID_REQUIRED } = errorEnum;
 const { CREATED, NOT_FOUND, OK } = httpResponseCodes;

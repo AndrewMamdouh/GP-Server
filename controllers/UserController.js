@@ -1,18 +1,21 @@
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
 import { default as Client } from "../mongodb/models/Client.js";
+import { hashSync, compareSync } from "bcrypt";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import UpdateProfileService from "../services/UpdateProfileService.js";
 import { userTypes } from "../constants/models.js";
 import { verifyToken } from "../utils/jwt.js";
 import AppError from "../constants/AppError.js";
-import { isNull, isEmpty } from "../utils/checkValidity.js";
-import matches from "validator/lib/matches.js";
 import { tokenTypes } from "../constants/jwt.js";
 import SendVerificationEmail from "../services/SendVerificationEmail.js";
 import SendResetPasswordEmail from "../services/SendResetPasswordEmail.js";
+import userDataValidator from "../utils/userDataValidator.js";
+import { userData } from "../constants/userData.js";
 
+const { EMAIL, PASSWORD } = userData;
 const { NO_CONTENT, NOT_FOUND, OK } = httpResponseCodes;
-const { INVALID_AUTH, INVALID_PASSWORD, ALL_FIELDS_REQUIRED, EMAIL_VERIFIED } = errorEnum;
+const { INVALID_AUTH, EMAIL_VERIFIED, EMAIL_NOT_FOUND, PASSWORD_MATCH } =
+  errorEnum;
 
 const getProfile = async (req, res, next) => {
   try {
@@ -55,12 +58,12 @@ const updateProfile = async (req, res, next) => {
 const sendVerification = async (req, res, next) => {
   try {
     const { email } = req.body;
-    if(isNull(email) || isEmpty(email)) throw new AppError(ALL_FIELDS_REQUIRED);
+    userDataValidator(EMAIL, email);
     const isFreelancer = await Freelancer.findOne({ email });
     const isClient = await Client.findOne({ email });
-    if (!isFreelancer && !isClient) return res.status(NOT_FOUND).json({});
+    if (!isFreelancer && !isClient) throw new AppError(EMAIL_NOT_FOUND);
     const userInfo = isClient || isFreelancer;
-    if(userInfo.verified) throw new AppError(EMAIL_VERIFIED);
+    if (userInfo.verified) throw new AppError(EMAIL_VERIFIED);
     await SendVerificationEmail(email);
     return res.status(NO_CONTENT).send();
   } catch (err) {
@@ -76,7 +79,7 @@ const verifyUser = async (req, res, next) => {
     const { email } = decoded;
     const isFreelancer = await Freelancer.findOne({ email });
     const isClient = await Client.findOne({ email });
-    if (!isFreelancer && !isClient) return res.status(NOT_FOUND).json({});
+    if (!isFreelancer && !isClient) throw new AppError(EMAIL_NOT_FOUND);
     const userInfo = isClient || isFreelancer;
     if (userInfo.userType === userTypes.CLIENT)
       await Client.findById(userInfo._id).update({ verified: true });
@@ -90,10 +93,10 @@ const verifyUser = async (req, res, next) => {
 const sendReset = async (req, res, next) => {
   try {
     const { email } = req.body;
-    if(isNull(email) || isEmpty(email)) throw new AppError(ALL_FIELDS_REQUIRED);
+    userDataValidator(EMAIL, email);
     const isFreelancer = await Freelancer.findOne({ email });
     const isClient = await Client.findOne({ email });
-    if (!isFreelancer && !isClient) return res.status(NOT_FOUND).json({});
+    if (!isFreelancer && !isClient) throw new AppError(EMAIL_NOT_FOUND);
     const userInfo = isFreelancer || isClient;
     await SendResetPasswordEmail(userInfo.fullName, email);
     return res.status(NO_CONTENT).send();
@@ -110,26 +113,21 @@ const resetPassword = async (req, res, next) => {
     const { email } = decoded;
     const isFreelancer = await Freelancer.findOne({ email });
     const isClient = await Client.findOne({ email });
-    if (!isFreelancer && !isClient) return res.status(NOT_FOUND).json({});
+
+    const userInfo = isFreelancer || isClient;
+    if (!userInfo) throw new AppError(EMAIL_NOT_FOUND);
 
     const { password } = req.body;
 
-    if (isNull(password) || isEmpty(password))
-      throw new AppError(ALL_FIELDS_REQUIRED);
-    if (
-      !matches(
-        password,
-        new RegExp(
-          /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#.?_!@$%^&*-]).{8,32}$/
-        )
-      )
-    )
-      throw new AppError(INVALID_PASSWORD);
+    const isPasswordMatch = compareSync(password, userInfo.password);
 
-      // hash plain password
-  const hashPass = hashSync(password, 15);
+    if(isPasswordMatch) throw new AppError(PASSWORD_MATCH);
 
-    const userInfo = isClient || isFreelancer;
+    userDataValidator(PASSWORD, password);
+
+    // hash plain password
+    const hashPass = hashSync(password, 15);
+
     if (userInfo.userType === userTypes.CLIENT)
       await Client.findOne({ email }).update({ password: hashPass });
     else await Freelancer.findOne({ email }).update({ password: hashPass });
@@ -139,4 +137,11 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
-export { getProfile, updateProfile, sendVerification, verifyUser, sendReset, resetPassword };
+export {
+  getProfile,
+  updateProfile,
+  sendVerification,
+  verifyUser,
+  sendReset,
+  resetPassword,
+};

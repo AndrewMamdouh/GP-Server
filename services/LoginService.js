@@ -1,25 +1,15 @@
-import { isEmpty, isNull } from "../utils/checkValidity.js";
-import isEmail from "validator/lib/isemail.js";
-import AppError from "../constants/AppError.js";
-import { errorEnum } from "../constants/errorCodes.js";
+import { userData } from "../constants/userData.js";
+import userDataValidator from "../utils/userDataValidator.js";
 
 const {
-  ALL_FIELDS_REQUIRED,
-  INVALID_EMAIL,
-} = errorEnum;
+  EMAIL,
+  PASSWORD
+} = userData;
 
 const LoginService = ({ email, password }) => {
-  // Validate user input
-  if (
-    isNull(email) ||
-    isNull(password) ||
-    isEmpty(email) ||
-    isEmpty(password)
-  )
-    throw new AppError(ALL_FIELDS_REQUIRED);
-
-  // Check if email is valid
-  if (!isEmail(email)) throw new AppError(INVALID_EMAIL);
+ 
+  userDataValidator(EMAIL, email);
+  userDataValidator(PASSWORD, password);
 
   return {
     email: email.toLowerCase(),

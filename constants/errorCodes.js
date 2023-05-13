@@ -11,16 +11,17 @@ export const errorEnum = {
   INVALID_EMAIL: 'INVALID_EMAIL',
   INVALID_PASSWORD: 'INVALID_PASSWORD',
   INVALID_FREELANCER_TYPE: 'INVALID_FREELANCER_TYPE',
-  INVALID_LOCATION: 'INVALID_LOCATION',
+  INVALID_ADDRESS: 'INVALID_ADDRESS',
   INVALID_HOURLY_RATE: 'INVALID_HOURLY_RATE',
   INVALID_PHONE: 'INVALID_PHONE',
-  INVALID_BIO: 'INVALID_BIO',
+  INVALID_DESCRIPTION: 'INVALID_DESCRIPTION',
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
   INVALID_AUTH: 'INVALID_AUTH',
   EMAIL_NOT_FOUND: 'EMAIL_NOT_FOUND',
   EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
   EMAIL_VERIFIED: 'EMAIL_VERIFIED',
   WRONG_PASSWORD: 'WRONG_PASSWORD',
+  PASSWORD_MATCH: 'PASSWORD_MATCH',
   LOCATION_API_ERROR: 'LOCATION_API_ERROR',
   INTERNAL_ERROR: 'INTERNAL_ERROR'
 }
@@ -88,7 +89,7 @@ export const errorCodes = {
     message: `Type should be one of these: ${Object.values(freelancerTypes).join(', ')}`,
   },
 
-  [errorEnum.INVALID_LOCATION]: {
+  [errorEnum.INVALID_ADDRESS]: {
     statusCode: httpResponseCodes.BAD_REQUEST,
     message: "Address must be an array of two numeric values [latitude, longitude].",
   },
@@ -103,7 +104,7 @@ export const errorCodes = {
     message: "Mobile number must be in one of the following formats: {0-10-xxxx-xxxx, 0-11-xxxx-xxxx, 0-12-xxxx-xxxx, 0-15-xxxx-xxxx}.",
   },
 
-  [errorEnum.INVALID_BIO]: {
+  [errorEnum.INVALID_DESCRIPTION]: {
     statusCode: httpResponseCodes.BAD_REQUEST,
     message: "Description must be at least 20 characters and not exceeding 1000 characters.",
   },
@@ -136,6 +137,11 @@ export const errorCodes = {
   [errorEnum.WRONG_PASSWORD]: {
     statusCode: httpResponseCodes.UNAUTHORIZED,
     message: "Password is incorrect.",
+  },
+
+  [errorEnum.PASSWORD_MATCH]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Password can't match the old one.",
   },
 
   [errorEnum.LOCATION_API_ERROR]: {

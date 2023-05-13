@@ -6,3 +6,7 @@ export const PackageSchema = new Schema({
   photosNum: { type: Number, required: true },
   description: { type: String, required: true },
 });
+
+const PackageModel = model("Package", PackageSchema);
+
+export default PackageModel;

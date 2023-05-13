@@ -70,6 +70,9 @@ const createFreelancer = async (req, res, next) => {
     // Create freelancer in our database
     await Freelancer.create(newFreelancerInfo);
 
+    // Send verification email
+    await SendVerificationEmail(validUserInfo.email);
+
     return res.status(CREATED).json({});
   } catch (err) {
     return next(err);

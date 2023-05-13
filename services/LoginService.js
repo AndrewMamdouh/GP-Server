@@ -1,6 +1,5 @@
 import { isEmpty, isNull } from "../utils/checkValidity.js";
 import isEmail from "validator/lib/isemail.js";
-import normalizeEmail from "validator/lib/normalizeemail.js";
 import AppError from "../constants/AppError.js";
 import { errorEnum } from "../constants/errorCodes.js";
 
@@ -23,7 +22,7 @@ const LoginService = ({ email, password }) => {
   if (!isEmail(email)) throw new AppError(INVALID_EMAIL);
 
   return {
-    email: normalizeEmail(email),
+    email: email.toLowerCase(),
     password
   }
 

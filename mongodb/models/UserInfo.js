@@ -6,4 +6,5 @@ export const UserInfoSchema = new Schema({
   fullName: { type: String, required: true },
   password: { type: String, required: true },
   joinDate: { type: Date, default: Date.now },
+  verified: { type: Boolean, default: false }
 });

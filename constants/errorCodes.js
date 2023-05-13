@@ -18,6 +18,8 @@ export const errorEnum = {
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
   INVALID_AUTH: 'INVALID_AUTH',
   EMAIL_NOT_FOUND: 'EMAIL_NOT_FOUND',
+  EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
+  EMAIL_VERIFIED: 'EMAIL_VERIFIED',
   WRONG_PASSWORD: 'WRONG_PASSWORD',
   LOCATION_API_ERROR: 'LOCATION_API_ERROR',
   INTERNAL_ERROR: 'INTERNAL_ERROR'
@@ -119,6 +121,16 @@ export const errorCodes = {
   [errorEnum.EMAIL_NOT_FOUND]: {
     statusCode: httpResponseCodes.NOT_FOUND,
     message: "This email address isn't registered.",
+  },
+
+  [errorEnum.EMAIL_VERIFIED]: {
+    statusCode: httpResponseCodes.CONFLICT,
+    message: "This email address is already verified.",
+  },
+
+  [errorEnum.EMAIL_NOT_VERIFIED]: {
+    statusCode: httpResponseCodes.UNAUTHORIZED,
+    message: "This email address isn't verified.",
   },
 
   [errorEnum.WRONG_PASSWORD]: {

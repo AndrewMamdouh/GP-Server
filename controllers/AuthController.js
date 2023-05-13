@@ -7,9 +7,11 @@ import { verifyToken } from "../utils/jwt.js";
 import { default as TokenModel } from "../mongodb/models/Token.js";
 import LoginService from "../services/LoginService.js";
 import AppError from "../constants/AppError.js";
+import { tokenTypes } from "../constants/jwt.js";
 
-const { AUTH_REQUIRED, EMAIL_NOT_FOUND, WRONG_PASSWORD } = errorEnum;
+const { AUTH_REQUIRED, EMAIL_NOT_FOUND, WRONG_PASSWORD, EMAIL_NOT_VERIFIED } = errorEnum;
 const { OK } = httpResponseCodes;
+const { ACCESS, REFRESH } = tokenTypes
 
 const login = async (req, res, next) => {
   try {
@@ -34,11 +36,13 @@ const login = async (req, res, next) => {
 
     if (!isPasswordValid) throw new AppError(WRONG_PASSWORD);
 
+    if(!userInfo.verified) throw new AppError(EMAIL_NOT_VERIFIED);
+
     // Create access token
-    const access = createToken({ id: userInfo._id }, "ACCESS");
+    const access = createToken({ id: userInfo._id }, ACCESS);
 
     // Create refresh token
-    const refresh = createToken({ id: userInfo._id }, "REFRESH");
+    const refresh = createToken({ id: userInfo._id }, REFRESH);
 
     const newTokenInfo = {
       _userId: userInfo._id,
@@ -73,7 +77,7 @@ const refreshToken = async (req, res, next) => {
 
     if (!refreshToken) throw new AppError(AUTH_REQUIRED);
 
-    const result = verifyToken(refreshToken, "REFRESH");
+    const result = verifyToken(refreshToken, REFRESH);
 
     if (
       (result instanceof Error && result.name === "TokenExpiredError") ||
@@ -85,10 +89,10 @@ const refreshToken = async (req, res, next) => {
       if (!dbToken) return res.status(httpResponseCodes.NOT_FOUND).json({});
 
       // Create access token
-      const access = createToken({ id: dbToken._userId }, "ACCESS");
+      const access = createToken({ id: dbToken._userId }, ACCESS);
 
       // Creating refresh token
-      const refresh = createToken({ id: dbToken._userId }, "REFRESH");
+      const refresh = createToken({ id: dbToken._userId }, REFRESH);
 
       // Update token in database
       await TokenModel.updateOne(

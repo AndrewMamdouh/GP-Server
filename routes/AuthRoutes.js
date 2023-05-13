@@ -2,7 +2,7 @@ import express from "express";
 
 import {
   login,
-  refreshToken
+  refreshToken,
 } from "../controllers/AuthController.js";
 import errorHandler from "../middlewares/errorHandler.js";
 

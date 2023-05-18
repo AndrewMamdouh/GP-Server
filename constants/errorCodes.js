@@ -4,6 +4,7 @@ export const errorEnum = {
   ALL_FIELDS_REQUIRED: 'ALL_FIELDS_REQUIRED',
   AUTH_REQUIRED: 'AUTH_REQUIRED',
   USER_ID_REQUIRED: 'USER_ID_REQUIRED',
+  PACKAGE_ID_REQUIRED: 'PACKAGE_ID_REQUIRED',
   USERNAME_EXIST: 'USERNAME_EXIST',
   EMAIL_EXIST: 'EMAIL_EXIST',
   INVALID_USERNAME: 'INVALID_USERNAME',
@@ -16,6 +17,8 @@ export const errorEnum = {
   INVALID_PHONE: 'INVALID_PHONE',
   INVALID_DESCRIPTION: 'INVALID_DESCRIPTION',
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  INVALID_PACKAGE_PHOTOS_NUM: 'INVALID_PACKAGE_PHOTOS_NUM',
+  INVALID_PACKAGE_DESCRIPTION: 'INVALID_PACKAGE_DESCRIPTION',
   INVALID_AUTH: 'INVALID_AUTH',
   EMAIL_NOT_FOUND: 'EMAIL_NOT_FOUND',
   EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
@@ -52,6 +55,11 @@ export const errorCodes = {
   [errorEnum.USER_ID_REQUIRED]: {
     statusCode: httpResponseCodes.BAD_REQUEST,
     message: "User ID is required.",
+  },
+
+  [errorEnum.PACKAGE_ID_REQUIRED]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Package ID is required.",
   },
 
   [errorEnum.USERNAME_EXIST]: {
@@ -112,6 +120,16 @@ export const errorCodes = {
   [errorEnum.INVALID_CREDENTIALS]: {
     statusCode: httpResponseCodes.BAD_REQUEST,
     message: "Invalid credentials.",
+  },
+
+  [errorEnum.INVALID_PACKAGE_PHOTOS_NUM]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Photos must be a number [1, 1000].",
+  },
+
+  [errorEnum.INVALID_PACKAGE_DESCRIPTION]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Description must be at least 20 characters and not exceeding 200 characters.",
   },
 
   [errorEnum.INVALID_AUTH]: {

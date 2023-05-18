@@ -8,6 +8,7 @@ import AuthRouter from "./routes/AuthRoutes.js";
 import UserRouter from "./routes/UserRoutes.js";
 import ClientRouter from "./routes/ClientRoutes.js";
 import FreelancerRouter from "./routes/FreelancerRoutes.js";
+import PackageRouter from "./routes/PackageRoutes.js";
 
 dotenv.config();
 const { PORT, MONGODB_URI, COOKIE_KEY } = process.env;
@@ -26,6 +27,7 @@ app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/users", UserRouter);
 app.use("/api/v1/clients", ClientRouter);
 app.use("/api/v1/freelancers", FreelancerRouter);
+app.use("/api/v1/packages", PackageRouter);
 
 const startServer = async () => {
   try {

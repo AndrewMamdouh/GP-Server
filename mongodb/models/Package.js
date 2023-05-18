@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { Schema, model } from "mongoose";
 
 export const PackageSchema = new Schema({
   date: { type: Date, default: Date.now },

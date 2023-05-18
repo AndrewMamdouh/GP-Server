@@ -9,3 +9,8 @@ export const userData = {
   HOURLY_RATE: "HOURLY_RATE",
   DESCRIPTION: "DESCRIPTION",
 };
+
+export const freelancerPackageData = {
+  PHOTOS_NUM: "PHOTOS_NUM",
+  DESCRIPTION: "DESCRIPTION",
+}

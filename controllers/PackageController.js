@@ -21,9 +21,9 @@ const createPackage = async (req, res, next) => {
     const isFreelancer = await Freelancer.findById(req.user.id);
     const isClient = await Client.findById(req.user.id);
 
-    const userInfo = isFreelancer || isClient;
+    //const userInfo = isFreelancer || isClient;
 
-    if (userInfo.userType === userTypes.CLIENT) return res.status(FORBIDDEN).json({});
+    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
 
     // Get package info
     const { photosNum, description } = req.body;
@@ -58,9 +58,9 @@ const getPackage = async (req, res, next) => {
     const isFreelancer = await Freelancer.findById(req.user.id);
     const isClient = await Client.findById(req.user.id);
 
-    const userInfo = isFreelancer || isClient;
+    //const userInfo = isFreelancer || isClient;
 
-    if (userInfo.userType === userTypes.CLIENT) return res.status(FORBIDDEN).json({});
+    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
 
     // Get package ID
     const id = req.params.id;
@@ -88,9 +88,9 @@ const updatePackage = async (req, res, next) => {
     const isFreelancer = await Freelancer.findById(req.user.id);
     const isClient = await Client.findById(req.user.id);
 
-    const userInfo = isFreelancer || isClient;
+    //const userInfo = isFreelancer || isClient;
 
-    if (userInfo.userType === userTypes.CLIENT) return res.status(FORBIDDEN).json({});
+    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
 
      // Get package ID
      const id = req.params.id;
@@ -126,9 +126,9 @@ const removePackage = async (req, res, next) => {
     const isFreelancer = await Freelancer.findById(req.user.id);
     const isClient = await Client.findById(req.user.id);
 
-    const userInfo = isFreelancer || isClient;
+    //const userInfo = isFreelancer || isClient;
 
-    if (userInfo.userType === userTypes.CLIENT) return res.status(FORBIDDEN).json({});
+    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
 
      // Get package ID
      const id = req.params.id;
@@ -164,9 +164,9 @@ const getAllPackages = async (req, res, next) => {
     const isFreelancer = await Freelancer.findById(req.user.id);
     const isClient = await Client.findById(req.user.id);
 
-    const userInfo = isFreelancer || isClient;
+    //const userInfo = isFreelancer || isClient;
 
-    if (userInfo.userType === userTypes.CLIENT) return res.status(FORBIDDEN).json({});
+    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
 
     // Get all freelancer packages
     const { packages } = await Freelancer.findById(userInfo._id, 'packages');

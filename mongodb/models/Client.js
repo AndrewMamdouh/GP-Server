@@ -10,6 +10,7 @@ const ClientSchema = new Schema({
     default: userTypes.CLIENT
   },
   favList: [{ type: Schema.Types.ObjectId, ref: "Freelancer" }],
+  visitList: [{ type: Schema.Types.ObjectId, ref: "Freelancer" }]
 });
 
 const ClientModel = model("Client", ClientSchema);

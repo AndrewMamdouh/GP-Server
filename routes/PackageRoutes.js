@@ -2,7 +2,6 @@ import express from "express";
 
 import {
   createPackage,
-  getPackage,
   updatePackage,
   removePackage,
   getAllPackages,
@@ -14,10 +13,9 @@ import authHandler from "../middlewares/authHandler.js";
 const PackageRouter = express.Router();
 
 PackageRouter.route("/").post(authHandler, createPackage, errorHandler);
-PackageRouter.route("/:id").get(authHandler, getPackage, errorHandler);
 PackageRouter.route("/:id").patch(authHandler, updatePackage, errorHandler);
 PackageRouter.route("/:id").delete(authHandler, removePackage, errorHandler);
-PackageRouter.route("/").get(authHandler, getAllPackages, errorHandler);
+PackageRouter.route("/:id").get(getAllPackages, errorHandler);
 
 
 export default PackageRouter;

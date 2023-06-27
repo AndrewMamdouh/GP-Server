@@ -3,6 +3,7 @@ export const userData = {
   FULLNAME: "FULLNAME",
   EMAIL: "EMAIL",
   PASSWORD: "PASSWORD",
+  PROFILE_PIC: "PROFILE_PIC",
   FREELANCER_TYPE: "FREELANCER_TYPE",
   ADDRESS: "ADDRESS",
   PHONE_NUM: "PHONE_NUM",
@@ -13,4 +14,8 @@ export const userData = {
 export const freelancerPackageData = {
   PHOTOS_NUM: "PHOTOS_NUM",
   DESCRIPTION: "DESCRIPTION",
+};
+
+export const reviewData = {
+  CONTENT: "CONTENT"
 }

@@ -19,8 +19,6 @@ const FreelancerSchema = new Schema({
   phoneNum: { type: String, required: true },
   hourlyRate: { type: Number, required: true },
   description: { type: String, required: true },
-  portfolioItems: [{ type: Schema.Types.ObjectId, ref: "PortfolioItem" }],
-  packages: [{ type: Schema.Types.ObjectId, ref: "Package" }],
 });
 
 const FreelancerModel = model("Freelancer", FreelancerSchema);

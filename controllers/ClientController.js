@@ -5,10 +5,10 @@ import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import AppError from "../constants/AppError.js";
 import { isEmpty, isNull, isString } from "../utils/checkValidity.js";
 import SendVerificationEmail from "../services/SendVerificationEmail.js";
-import removeDuplicates from "../utils/removeDuplicates.js";
+import { isValidObjectId } from "mongoose";
 
-const { USERNAME_EXIST, EMAIL_EXIST, USER_ID_REQUIRED } = errorEnum;
-const { CREATED, NOT_FOUND, OK, FORBIDDEN, BAD_REQUEST } = httpResponseCodes;
+const { USERNAME_EXIST, EMAIL_EXIST, INVALID_ID, FAV_EXIST } = errorEnum;
+const { CREATED, NOT_FOUND, OK, FORBIDDEN, BAD_REQUEST, NO_CONTENT } = httpResponseCodes;
 
 const createClient = async (req, res, next) => {
   try {
@@ -59,9 +59,8 @@ const getClient = async (req, res, next) => {
     // Get client ID
     const id = req.params.id;
 
-    // Check if valid id
-    if (isNull(id) || !isString(id) || isEmpty(id))
-      throw new AppError(USER_ID_REQUIRED);
+    // Check if id is valid
+    if (!isValidObjectId(id)) throw new AppError(INVALID_ID);
 
     // Get client data
     const clientData = await Client.findById(id, {
@@ -88,15 +87,21 @@ const addToVisitList = async (req, res, next) => {
   try {
     if (!req.user) return res;
 
-    const isFreelancer = await Freelancer.findById(req.user.id);
-    const isClient = await Client.findById(req.user.id);
+    const { id: userId } = req.user;
 
-    if (isFreelancer || !isClient) return res.status(FORBIDDEN).json({});
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
+
+    if (isFreelancer) return res.status(FORBIDDEN).json({});
+    if (!isClient) return res.status(NOT_FOUND).json({});
 
     // Get visited Freelancer id
     const { id } = req.body;
 
-    // Check if freelancer id valid
+    // Check if id is valid
+    if (!isValidObjectId(id)) throw new AppError(INVALID_ID);
+
+    // Check if id valid
     const isFreelancerExists = await Freelancer.findById(id);
 
     if (!isFreelancerExists) return res.status(NOT_FOUND).json({});
@@ -109,14 +114,87 @@ const addToVisitList = async (req, res, next) => {
   }
 };
 
+const addToFavList = async (req, res, next) => {
+  try {
+    if (!req.user) return res;
+
+    const { id: userId } = req.user;
+
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
+
+    if (isFreelancer) return res.status(FORBIDDEN).json({});
+    if (!isClient) return res.status(NOT_FOUND).json({});
+
+    // Get Freelancer id
+    const { id } = req.body;
+
+    // Check if id is valid
+    if (!isValidObjectId(id)) throw new AppError(INVALID_ID);
+
+    // Check if id valid
+    const isFreelancerExists = await Freelancer.findById(id);
+
+    if (!isFreelancerExists) return res.status(NOT_FOUND).json({});
+
+    const freelancerInFav = await Client.find({ favList: { $in: [id] } });
+
+    if(freelancerInFav) throw new AppError(FAV_EXIST);
+
+    await isClient.updateOne({ $addToSet: { favList: id } });
+
+    return res.status(OK).json({});
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const removeFromFavList = async (req, res, next) => {
+  try {
+    if (!req.user) return res;
+
+    const { id: userId } = req.user;
+
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
+
+    if (isFreelancer) return res.status(FORBIDDEN).json({});
+    if (!isClient) return res.status(NOT_FOUND).json({});
+
+    // Get Freelancer id
+    const id = req.params.id;
+
+    // Check if id is valid
+    if (!isValidObjectId(id)) throw new AppError(INVALID_ID);
+
+    // Check if id valid
+    const isFreelancerExists = await Freelancer.findById(id);
+
+    if (!isFreelancerExists) return res.status(NOT_FOUND).json({});
+
+    const freelancerInFav = await Client.find({ favList: { $in: [id] } });
+
+    if(!freelancerInFav) return res.status(NOT_FOUND).json({});
+
+    await isClient.updateOne({ $pull: { favList: id } });
+
+    return res.status(NO_CONTENT).send();
+  } catch (err) {
+    return next(err);
+  }
+};
+
 const search = async (req, res, next) => {
   try {
     if (!req.user) return res;
 
-    const isFreelancer = await Freelancer.findById(req.user.id);
-    const isClient = await Client.findById(req.user.id);
+    const { id: userId } = req.user;
 
-    if (isFreelancer || !isClient) return res.status(FORBIDDEN).json({});
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
+
+    if (isFreelancer) return res.status(FORBIDDEN).json({});
+    if (!isClient) return res.status(NOT_FOUND).json({});
 
     // Get search query
     const { query } = req.query;
@@ -128,14 +206,14 @@ const search = async (req, res, next) => {
 
     // Get freelancers matching query
     const results = await Freelancer.find(
-      { $or: [{ username: { $regex: regex }}, { fullName: { $regex: regex }}]},
+      {
+        $or: [{ username: { $regex: regex } }, { fullName: { $regex: regex } }],
+      },
       {
         __v: false,
         password: false,
       }
     );
-
-    console.log(results);
 
     return res.status(OK).json({ results });
   } catch (err) {
@@ -143,4 +221,11 @@ const search = async (req, res, next) => {
   }
 };
 
-export { createClient, getClient, addToVisitList, search };
+export {
+  createClient,
+  getClient,
+  addToVisitList,
+  addToFavList,
+  removeFromFavList,
+  search,
+};

@@ -9,6 +9,7 @@ import UserRouter from "./routes/UserRoutes.js";
 import ClientRouter from "./routes/ClientRoutes.js";
 import FreelancerRouter from "./routes/FreelancerRoutes.js";
 import PackageRouter from "./routes/PackageRoutes.js";
+import ReviewRouter from "./routes/ReviewRoutes.js";
 
 dotenv.config();
 const { PORT, MONGODB_URI, COOKIE_KEY } = process.env;
@@ -16,18 +17,15 @@ const { PORT, MONGODB_URI, COOKIE_KEY } = process.env;
 const app = express();
 app.use(helmet());
 //app.use(cors());
-app.use(express.json({ limit: "20mb" }));
+app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser(COOKIE_KEY));
-
-// app.get("/", (req, res) => {
-//   res.send({ message: "Hello World!" });
-// });
 
 app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/users", UserRouter);
 app.use("/api/v1/clients", ClientRouter);
 app.use("/api/v1/freelancers", FreelancerRouter);
 app.use("/api/v1/packages", PackageRouter);
+app.use("/api/v1/reviews", ReviewRouter);
 
 const startServer = async () => {
   try {

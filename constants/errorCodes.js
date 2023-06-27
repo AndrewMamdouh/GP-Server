@@ -7,6 +7,8 @@ export const errorEnum = {
   PACKAGE_ID_REQUIRED: 'PACKAGE_ID_REQUIRED',
   USERNAME_EXIST: 'USERNAME_EXIST',
   EMAIL_EXIST: 'EMAIL_EXIST',
+  REVIEW_EXIST: 'REVIEW_EXIST',
+  FAV_EXIST: 'FAV_EXIST',
   INVALID_USERNAME: 'INVALID_USERNAME',
   INVALID_FULLNAME: 'INVALID_FULLNAME',
   INVALID_EMAIL: 'INVALID_EMAIL',
@@ -19,7 +21,10 @@ export const errorEnum = {
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
   INVALID_PACKAGE_PHOTOS_NUM: 'INVALID_PACKAGE_PHOTOS_NUM',
   INVALID_PACKAGE_DESCRIPTION: 'INVALID_PACKAGE_DESCRIPTION',
+  INVALID_REVIEW_CONTENT: 'INVALID_REVIEW_CONTENT',
   INVALID_AUTH: 'INVALID_AUTH',
+  INVALID_ID: 'INVALID_ID',
+  INVALID_URL: 'INVALID_URL',
   EMAIL_NOT_FOUND: 'EMAIL_NOT_FOUND',
   EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
   EMAIL_VERIFIED: 'EMAIL_VERIFIED',
@@ -70,6 +75,16 @@ export const errorCodes = {
   [errorEnum.EMAIL_EXIST]: {
     statusCode: httpResponseCodes.CONFLICT,
     message: "Email address already exists.",
+  },
+
+  [errorEnum.REVIEW_EXIST]: {
+    statusCode: httpResponseCodes.CONFLICT,
+    message: "Client has already reviewed same freelancer before.",
+  },
+
+  [errorEnum.FAV_EXIST]: {
+    statusCode: httpResponseCodes.CONFLICT,
+    message: "Freelancer has already been added to favorites before.",
   },
 
   [errorEnum.INVALID_USERNAME]: {
@@ -132,9 +147,24 @@ export const errorCodes = {
     message: "Description must be at least 20 characters and not exceeding 200 characters.",
   },
 
+  [errorEnum.INVALID_REVIEW_CONTENT]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Review content must be at least 5 characters and not exceeding 200 characters.",
+  },
+
   [errorEnum.INVALID_AUTH]: {
     statusCode: httpResponseCodes.UNAUTHORIZED,
     message: "Invalid authorization.",
+  },
+
+  [errorEnum.INVALID_ID]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Invalid id.",
+  },
+
+  [errorEnum.INVALID_URL]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Invalid url.",
   },
 
   [errorEnum.EMAIL_NOT_FOUND]: {

@@ -5,10 +5,10 @@ import CreateFreelancerInfoService from "../services/CreateFreelancerInfoService
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import AppError from "../constants/AppError.js";
 import GetCity from "../services/GetCity.js";
-import { isNull } from "../utils/checkValidity.js";
 import SendVerificationEmail from "../services/SendVerificationEmail.js";
+import { isValidObjectId } from "mongoose";
 
-const { USERNAME_EXIST, EMAIL_EXIST, USER_ID_REQUIRED } = errorEnum;
+const { USERNAME_EXIST, EMAIL_EXIST, INVALID_ID } = errorEnum;
 const { CREATED, NOT_FOUND, OK } = httpResponseCodes;
 
 const createFreelancer = async (req, res, next) => {
@@ -16,6 +16,7 @@ const createFreelancer = async (req, res, next) => {
     // Get user input
     const {
       username,
+      profilePic,
       fullName,
       email,
       password,
@@ -29,6 +30,7 @@ const createFreelancer = async (req, res, next) => {
     // Validate user input
     const validUserInfo = CreateUserInfoService({
       username,
+      profilePic,
       fullName,
       email,
       password,
@@ -85,8 +87,8 @@ const getFreelancer = async (req, res, next) => {
     // Get freelancer ID
     const id = req.params.id;
 
-    // Check if valid id
-    if (isNull(id)) throw new AppError(USER_ID_REQUIRED);
+    // Check if id is valid
+    if(!isValidObjectId(id)) throw new AppError(INVALID_ID);
 
     // Get freelancer data
     const freelancerData = await Freelancer.findById(id, {

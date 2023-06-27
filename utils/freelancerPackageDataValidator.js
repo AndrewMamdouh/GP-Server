@@ -3,6 +3,7 @@ import {
   isEmpty,
   isBetween,
   isNum,
+  isString,
 } from "./checkValidity.js";
 import AppError from "../constants/AppError.js";
 import { errorEnum } from "../constants/errorCodes.js";
@@ -24,7 +25,7 @@ const freelancerPackageDataValidator = (dataType, data) => {
     case DESCRIPTION:
       if (isNull(data) || isEmpty(data))
         throw new AppError(ALL_FIELDS_REQUIRED);
-      if (!isBetween(19, data.length, 201))
+      if (!isString(data) || !isBetween(19, data.length, 201))
         throw new AppError(INVALID_PACKAGE_DESCRIPTION);
 
       break;

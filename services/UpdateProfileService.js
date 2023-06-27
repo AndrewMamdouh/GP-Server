@@ -11,15 +11,19 @@ const {
 } = userData;
 
 const UpdateProfileService = ({ username, fullName, phoneNum, hourlyRate, description }, userType) => {
- 
-  username && userDataValidator(USERNAME, username);
-  fullName && userDataValidator(FULLNAME, fullName);
+  
+  const validKeys = {};
+
+  username && userDataValidator(USERNAME, username) && (validKeys.username = username);
+  fullName && userDataValidator(FULLNAME, fullName) && (validKeys.fullName = fullName);
 
   if (userType === userTypes.FREELANCER) {
-    phoneNum && userDataValidator(PHONE_NUM, phoneNum);
-    hourlyRate && userDataValidator(HOURLY_RATE, hourlyRate);
-    description && userDataValidator(DESCRIPTION, description);
+    phoneNum && userDataValidator(PHONE_NUM, phoneNum) && (validKeys.phoneNum = phoneNum);
+    hourlyRate && userDataValidator(HOURLY_RATE, hourlyRate) && (validKeys.hourlyRate = hourlyRate);
+    description && userDataValidator(DESCRIPTION, description) && (validKeys.description = description);
   }
+
+  return validKeys;
 };
 
 export default UpdateProfileService;

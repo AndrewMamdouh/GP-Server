@@ -2,28 +2,26 @@ import { default as Package } from "../mongodb/models/Package.js";
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
 import { default as Client } from "../mongodb/models/Client.js";
 import CreateFreelancerPackageService from "../services/CreateFreelancerPackageService.js";
-import { userTypes } from "../constants/models.js";
-import { httpResponseCodes } from "../constants/errorCodes.js";
-import { errorEnum } from "../constants/errorCodes.js";
-import { isNull } from "../utils/checkValidity.js";
-import AppError from "../constants/AppError.js";
+import { httpResponseCodes, errorEnum } from "../constants/errorCodes.js";
 import freelancerPackageDataValidator from "../utils/freelancerPackageDataValidator.js";
 import { freelancerPackageData } from "../constants/userData.js";
+import { isValidObjectId } from "mongoose";
 
+const { INVALID_ID } = errorEnum;
 const { FORBIDDEN, NO_CONTENT, NOT_FOUND, CREATED, OK } = httpResponseCodes;
-const { PACKAGE_ID_REQUIRED } = errorEnum
 const { PHOTOS_NUM, DESCRIPTION } = freelancerPackageData
 
 const createPackage = async (req, res, next) => {
   try {
     if (!req.user) return res;
 
-    const isFreelancer = await Freelancer.findById(req.user.id);
-    const isClient = await Client.findById(req.user.id);
+    const { id: userId } = req.user;
 
-    //const userInfo = isFreelancer || isClient;
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
 
-    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
+    if (isClient) return res.status(FORBIDDEN).json({});
+    if (!isFreelancer) return res.status(NOT_FOUND).json({});
 
     // Get package info
     const { photosNum, description } = req.body;
@@ -35,47 +33,12 @@ const createPackage = async (req, res, next) => {
     });
 
     // Create package in our database
-    const newPackage = await Package.create({
+    await Package.create({
       ...validPackageInfo,
       owner: userInfo._id,
     });
 
-    // Add package to freelancer
-    await Freelancer.findByIdAndUpdate(userInfo._id, {
-        $addToSet: { packages: newPackage._id}
-    })
-
     return res.status(CREATED).json({});
-  } catch (err) {
-    return next(err);
-  }
-};
-
-const getPackage = async (req, res, next) => {
-  try {
-    if (!req.user) return res;
-
-    const isFreelancer = await Freelancer.findById(req.user.id);
-    const isClient = await Client.findById(req.user.id);
-
-    //const userInfo = isFreelancer || isClient;
-
-    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
-
-    // Get package ID
-    const id = req.params.id;
-
-    // Check if valid id
-    if (isNull(id)) throw new AppError(PACKAGE_ID_REQUIRED);
-
-    // Get package data
-    const packageData = await Package.findById(id, {
-      __v: false,
-    });
-
-    if(!packageData) return res.status(NOT_FOUND).json({});
-
-    return res.status(OK).json(packageData);
   } catch (err) {
     return next(err);
   }
@@ -85,22 +48,23 @@ const updatePackage = async (req, res, next) => {
   try {
     if (!req.user) return res;
 
-    const isFreelancer = await Freelancer.findById(req.user.id);
-    const isClient = await Client.findById(req.user.id);
+    const { id: userId } = req.user;
 
-    //const userInfo = isFreelancer || isClient;
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
 
-    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
+    if (isClient) return res.status(FORBIDDEN).json({});
+    if (!isFreelancer) return res.status(NOT_FOUND).json({});
 
      // Get package ID
      const id = req.params.id;
 
-     // Check if valid id
-     if (isNull(id)) throw new AppError(PACKAGE_ID_REQUIRED);
+    // Check if id is valid
+     if(!isValidObjectId(id)) throw new AppError(INVALID_ID);
  
      // Get package data
      const packageData = await Package.findById(id);
- 
+    
      if(!packageData) return res.status(NOT_FOUND).json({});
 
     // Get package info
@@ -110,8 +74,13 @@ const updatePackage = async (req, res, next) => {
     photosNum && freelancerPackageDataValidator(PHOTOS_NUM, photosNum);
     description && freelancerPackageDataValidator(DESCRIPTION, description);
 
+    const updateKeys = Object.assign({},
+      photosNum && { photosNum },
+      description && { description }
+    );
+
     // Update package in our database
-    await Package.findByIdAndUpdate(id, { ...req.body })
+    await Package.findByIdAndUpdate(id, { ...updateKeys })
 
     return res.status(NO_CONTENT).json({});
   } catch (err) {
@@ -123,18 +92,19 @@ const removePackage = async (req, res, next) => {
   try {
     if (!req.user) return res;
 
-    const isFreelancer = await Freelancer.findById(req.user.id);
-    const isClient = await Client.findById(req.user.id);
+    const { id: userId } = req.user;
 
-    //const userInfo = isFreelancer || isClient;
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
 
-    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
+    if (isClient) return res.status(FORBIDDEN).json({});
+    if (!isFreelancer) return res.status(NOT_FOUND).json({});
 
      // Get package ID
      const id = req.params.id;
 
-     // Check if valid id
-     if (isNull(id)) throw new AppError(PACKAGE_ID_REQUIRED);
+     // Check if id is valid
+     if(!isValidObjectId(id)) throw new AppError(INVALID_ID);
  
      // Get package data
      const packageData = await Package.findById(id);
@@ -144,14 +114,7 @@ const removePackage = async (req, res, next) => {
     // Delete package from our database
     await Package.findByIdAndDelete(id);
 
-    // Delete package from freelancer packages
-    await Freelancer.findByIdAndUpdate(userInfo._id, {
-        $pull: {
-            packages: id,
-        },
-    });
-
-    return res.status(NO_CONTENT).json({});
+    return res.status(NO_CONTENT).send();
   } catch (err) {
     return next(err);
   }
@@ -159,22 +122,20 @@ const removePackage = async (req, res, next) => {
 
 const getAllPackages = async (req, res, next) => {
   try {
-    if (!req.user) return res;
+    // Get freelancer ID
+    const id = req.params.id;
 
-    const isFreelancer = await Freelancer.findById(req.user.id);
-    const isClient = await Client.findById(req.user.id);
+    // Check if id is valid
+    if(!isValidObjectId(id)) throw new AppError(INVALID_ID);
 
-    //const userInfo = isFreelancer || isClient;
+    const isFreelancer = await Freelancer.findById(id);
 
-    if (isClient || !isFreelancer) return res.status(FORBIDDEN).json({});
-
-    // Get all freelancer packages
-    const { packages } = await Freelancer.findById(userInfo._id, 'packages');
+    if (!isFreelancer) return res.status(NOT_FOUND).json({});
 
     // Match all these packages in our database
-    const allPackages = await Package.find({ _id: { $in: packages } });
+    const packages = await Package.find({ owner: isFreelancer._id });
 
-    return res.status(OK).json(allPackages);
+    return res.status(OK).json(packages);
   } catch (err) {
     return next(err);
   }
@@ -182,7 +143,6 @@ const getAllPackages = async (req, res, next) => {
 
 export {
   createPackage,
-  getPackage,
   updatePackage,
   removePackage,
   getAllPackages,

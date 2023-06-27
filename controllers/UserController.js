@@ -20,16 +20,23 @@ const { INVALID_AUTH, EMAIL_VERIFIED, EMAIL_NOT_FOUND, PASSWORD_MATCH } =
 const getProfile = async (req, res, next) => {
   try {
     if (!req.user) return res;
-    const isFreelancer = await Freelancer.findById(req.user.id, {
+
+    const { id: userId } = req.user;
+
+    const isFreelancer = await Freelancer.findById(userId, {
       __v: false,
       password: false,
     }).exec();
-    const isClient = await Client.findById(req.user.id, {
+
+    const isClient = await Client.findById(userId, {
       __v: false,
       password: false,
     }).exec();
+
     if (!isFreelancer && !isClient) return res.status(NOT_FOUND).json({});
-    const userInfo = isClient || isFreelancer;
+
+    const userInfo = isFreelancer || isClient;
+
     return res.status(OK).json(userInfo);
   } catch (err) {
     return next(err);
@@ -39,17 +46,26 @@ const getProfile = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     if (!req.user) return res;
-    const isFreelancer = await Freelancer.findById(req.user.id).exec();
-    const isClient = await Client.findById(req.user.id).exec();
+
+    const { id: userId } = req.user;
+
+    const isFreelancer = await Freelancer.findById(userId);
+
+    const isClient = await Client.findById(userId);
+
     if (!isFreelancer && !isClient) return res.status(NOT_FOUND).json({});
-    const userInfo = isClient || isFreelancer;
+
+    const userInfo = isFreelancer || isClient;
+
     const userType = userInfo.userType;
-    UpdateProfileService(req.body, userType);
-    const newUserInfo =
-      userType === userTypes.FREELANCER
-        ? await Freelancer.updateOne({ _id: req.user.id }, { ...req.body })
-        : await Client.updateOne({ _id: req.user.id }, { ...req.body });
-    return res.status(NO_CONTENT).send();
+
+    const updateKeys = UpdateProfileService(req.body, userType);
+
+    userType === userTypes.FREELANCER
+      ? await Freelancer.findByIdAndUpdate(userId, { ...updateKeys })
+      : await Client.findByIdAndUpdate(userId, { ...updateKeys });
+
+    return res.status(NO_CONTENT).json({});
   } catch (err) {
     return next(err);
   }

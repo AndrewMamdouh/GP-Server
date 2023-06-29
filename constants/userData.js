@@ -14,6 +14,7 @@ export const userData = {
 export const freelancerPackageData = {
   PHOTOS_NUM: "PHOTOS_NUM",
   DESCRIPTION: "DESCRIPTION",
+  PRICE: "PRICE"
 };
 
 export const reviewData = {

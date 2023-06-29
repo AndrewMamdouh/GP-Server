@@ -21,6 +21,7 @@ export const errorEnum = {
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
   INVALID_PACKAGE_PHOTOS_NUM: 'INVALID_PACKAGE_PHOTOS_NUM',
   INVALID_PACKAGE_DESCRIPTION: 'INVALID_PACKAGE_DESCRIPTION',
+  INVALID_PACKAGE_PRICE: 'INVALID_PACKAGE_PRICE',
   INVALID_REVIEW_CONTENT: 'INVALID_REVIEW_CONTENT',
   INVALID_AUTH: 'INVALID_AUTH',
   INVALID_ID: 'INVALID_ID',
@@ -145,6 +146,11 @@ export const errorCodes = {
   [errorEnum.INVALID_PACKAGE_DESCRIPTION]: {
     statusCode: httpResponseCodes.BAD_REQUEST,
     message: "Description must be at least 20 characters and not exceeding 200 characters.",
+  },
+
+  [errorEnum.INVALID_PACKAGE_PRICE]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Package price must be a number [10, 100000].",
   },
 
   [errorEnum.INVALID_REVIEW_CONTENT]: {

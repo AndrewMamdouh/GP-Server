@@ -7,7 +7,7 @@ import { errorEnum, httpResponseCodes } from '../constants/errorCodes.js';
 import CreateReviewService from '../services/CreateReviewService.js';
 
 const { INVALID_ID, REVIEW_EXIST } = errorEnum; 
-const { CREATED, OK, NO_CONTENT } = httpResponseCodes;
+const { CREATED, OK, NO_CONTENT, FORBIDDEN, NOT_FOUND } = httpResponseCodes;
 
 const createReview = async (req, res, next) => {
   try {
@@ -128,13 +128,10 @@ const getAllReviews = async (req, res, next) => {
     if(!isValidObjectId(id)) throw new AppError(INVALID_ID);
 
     const isFreelancer = await Freelancer.findById(id);
-    const isClient = await Client.findById(id);
-
-    if (isClient) return res.status(FORBIDDEN).json({});
+   
     if (!isFreelancer) return res.status(NOT_FOUND).json({});
 
     const reviews = await Review.find({ to: id }, {
-      _id: false,
       __v: false
     }).sort({ date: -1 });
 

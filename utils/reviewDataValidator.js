@@ -16,7 +16,7 @@ const reviewDataValidator = (dataType, data) => {
         case CONTENT:
             if(isNull(data) || isEmpty(data))
                 throw new AppError(ALL_FIELDS_REQUIRED);
-            if(!isString(data) || !isBetween(4, 201))
+            if(!isString(data) || !isBetween(4, data.length, 201))
                 throw new AppError(INVALID_REVIEW_CONTENT);
         
         default:

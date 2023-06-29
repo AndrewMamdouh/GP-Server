@@ -9,7 +9,7 @@ import { isValidObjectId } from "mongoose";
 
 const { INVALID_ID } = errorEnum;
 const { FORBIDDEN, NO_CONTENT, NOT_FOUND, CREATED, OK } = httpResponseCodes;
-const { PHOTOS_NUM, DESCRIPTION } = freelancerPackageData
+const { PHOTOS_NUM, DESCRIPTION, PRICE } = freelancerPackageData
 
 const createPackage = async (req, res, next) => {
   try {
@@ -24,12 +24,13 @@ const createPackage = async (req, res, next) => {
     if (!isFreelancer) return res.status(NOT_FOUND).json({});
 
     // Get package info
-    const { photosNum, description } = req.body;
+    const { photosNum, description, price } = req.body;
 
     // Validate package info
     const validPackageInfo = CreateFreelancerPackageService({
       photosNum,
       description,
+      price
     });
 
     // Create package in our database
@@ -68,15 +69,17 @@ const updatePackage = async (req, res, next) => {
      if(!packageData) return res.status(NOT_FOUND).json({});
 
     // Get package info
-    const { photosNum, description } = req.body;
+    const { photosNum, description, price } = req.body;
 
     // Validate package info
     photosNum && freelancerPackageDataValidator(PHOTOS_NUM, photosNum);
     description && freelancerPackageDataValidator(DESCRIPTION, description);
+    price && freelancerPackageDataValidator(PRICE, price);
 
     const updateKeys = Object.assign({},
       photosNum && { photosNum },
-      description && { description }
+      description && { description },
+      price && { price }
     );
 
     // Update package in our database
@@ -133,7 +136,9 @@ const getAllPackages = async (req, res, next) => {
     if (!isFreelancer) return res.status(NOT_FOUND).json({});
 
     // Match all these packages in our database
-    const packages = await Package.find({ owner: isFreelancer._id });
+    const packages = await Package.find({ owner: isFreelancer._id }, {
+      __v: false
+    });
 
     return res.status(OK).json(packages);
   } catch (err) {

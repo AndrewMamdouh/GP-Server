@@ -14,6 +14,7 @@ const GetCity = async (lat, lon) => {
         polygon_threshold: "0.0",
       },
     });
+    if(data.error) throw new AppError;
     return data;
   } catch (err) {
     return new AppError(errorEnum.LOCATION_API_ERROR);

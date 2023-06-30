@@ -119,7 +119,7 @@ const userDataValidator = (dataType, data) => {
       case DESCRIPTION:
           if (isNull(data) || isEmpty(data))
             throw new AppError(ALL_FIELDS_REQUIRED);
-          if (isString(data) || !isBetween(19, data.length, 1001))
+          if (!isString(data) || !isBetween(19, data.length, 1001))
             throw new AppError(INVALID_DESCRIPTION);
   
       break;

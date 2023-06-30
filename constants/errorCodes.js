@@ -26,13 +26,15 @@ export const errorEnum = {
   INVALID_AUTH: 'INVALID_AUTH',
   INVALID_ID: 'INVALID_ID',
   INVALID_URL: 'INVALID_URL',
+  INVALID_OTP: 'INVALID_OTP',
   EMAIL_NOT_FOUND: 'EMAIL_NOT_FOUND',
   EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
   EMAIL_VERIFIED: 'EMAIL_VERIFIED',
   WRONG_PASSWORD: 'WRONG_PASSWORD',
   PASSWORD_MATCH: 'PASSWORD_MATCH',
   LOCATION_API_ERROR: 'LOCATION_API_ERROR',
-  INTERNAL_ERROR: 'INTERNAL_ERROR'
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  OTP_EXPIRED: 'OTP_EXPIRED'
 }
 
 export const httpResponseCodes = {
@@ -173,6 +175,11 @@ export const errorCodes = {
     message: "Invalid url.",
   },
 
+  [errorEnum.INVALID_OTP]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Invalid OTP.",
+  },
+
   [errorEnum.EMAIL_NOT_FOUND]: {
     statusCode: httpResponseCodes.NOT_FOUND,
     message: "This email address isn't registered.",
@@ -206,5 +213,10 @@ export const errorCodes = {
   [errorEnum.INTERNAL_ERROR]: {
     statusCode: httpResponseCodes.INTERNAL_SERVER_ERROR,
     message: "Internal server error.",
+  },
+
+  [errorEnum.OTP_EXPIRED]: {
+    statusCode: httpResponseCodes.NOT_FOUND,
+    message: "OTP expired (it expires in 30 mins).",
   },
 };

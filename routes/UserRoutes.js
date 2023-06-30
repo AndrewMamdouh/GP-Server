@@ -15,10 +15,10 @@ const UserRouter = express.Router();
 
 UserRouter.route("/me").get(authHandler, getProfile, errorHandler);
 UserRouter.route("/me").patch(authHandler, updateProfile, errorHandler);
-UserRouter.route("/verify").post(sendVerification, errorHandler);
-UserRouter.route("/verify").get(verifyUser, errorHandler);
-UserRouter.route("/reset").post(sendReset, errorHandler);
-UserRouter.route("/reset/:token").post(resetPassword, errorHandler);
+UserRouter.route("/send-verify").post(sendVerification, errorHandler);
+UserRouter.route("/verify").post(verifyUser, errorHandler);
+UserRouter.route("/send-reset").post(sendReset, errorHandler);
+UserRouter.route("/reset").post(resetPassword, errorHandler);
 
 
 export default UserRouter;

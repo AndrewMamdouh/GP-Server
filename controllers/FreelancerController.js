@@ -1,5 +1,6 @@
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
 import { default as Client } from "../mongodb/models/Client.js";
+import { default as Otp } from "../mongodb/models/Otp.js";
 import CreateUserInfoService from "../services/CreateUserInfoService.js";
 import CreateFreelancerInfoService from "../services/CreateFreelancerInfoService.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
@@ -65,16 +66,22 @@ const createFreelancer = async (req, res, next) => {
       address: {
         name: result instanceof AppError ? "Egypt" : result.address.state,
         location: {
-          coordinates: validFreelancerInfo.address,
+          coordinates: result instanceof AppError ? [0, 0] : validFreelancerInfo.address,
         },
       },
     };
 
     // Create freelancer in our database
-    await Freelancer.create(newFreelancerInfo);
+    const newFreelancer = await Freelancer.create(newFreelancerInfo);
 
     // Send verification email
-    await SendVerificationEmail(validUserInfo.email);
+    const otp = await SendVerificationEmail(validUserInfo.email);
+
+    await Otp.create({
+      _userId: newFreelancer._id,
+      otp,
+      model: "Freelancer"
+    });
 
     return res.status(CREATED).json({});
   } catch (err) {

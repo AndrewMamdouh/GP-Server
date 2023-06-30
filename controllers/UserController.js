@@ -1,5 +1,6 @@
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
 import { default as Client } from "../mongodb/models/Client.js";
+import { default as Otp } from "../mongodb/models/Otp.js";
 import { hashSync, compareSync } from "bcrypt";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import UpdateProfileService from "../services/UpdateProfileService.js";
@@ -14,7 +15,7 @@ import { userData } from "../constants/userData.js";
 
 const { EMAIL, PASSWORD } = userData;
 const { NO_CONTENT, NOT_FOUND, OK } = httpResponseCodes;
-const { INVALID_AUTH, EMAIL_VERIFIED, EMAIL_NOT_FOUND, PASSWORD_MATCH } =
+const { INVALID_AUTH, EMAIL_VERIFIED, EMAIL_NOT_FOUND, PASSWORD_MATCH, OTP_EXPIRED, INVALID_OTP } =
   errorEnum;
 
 const getProfile = async (req, res, next) => {
@@ -80,7 +81,18 @@ const sendVerification = async (req, res, next) => {
     if (!isFreelancer && !isClient) throw new AppError(EMAIL_NOT_FOUND);
     const userInfo = isClient || isFreelancer;
     if (userInfo.verified) throw new AppError(EMAIL_VERIFIED);
-    await SendVerificationEmail(email);
+    const otp = await SendVerificationEmail(email);
+    const isOtp = await Otp.findOne({ _userId: userInfo._id });
+    if(isOtp){
+      await Otp.findByIdAndUpdate(isOtp._id, { otp });
+    }
+    else{
+      await Otp.create({
+        _userId: userInfo._id,
+        otp,
+        model: userInfo.constructor.modelName
+      });
+    }
     return res.status(NO_CONTENT).send();
   } catch (err) {
     return next(err);
@@ -89,17 +101,19 @@ const sendVerification = async (req, res, next) => {
 
 const verifyUser = async (req, res, next) => {
   try {
-    const token = req.query.token;
-    const decoded = verifyToken(token, tokenTypes.PUBLIC);
-    if (decoded instanceof Error) throw new AppError(INVALID_AUTH);
-    const { email } = decoded;
+    const { email, code } = req.body;
     const isFreelancer = await Freelancer.findOne({ email });
     const isClient = await Client.findOne({ email });
     if (!isFreelancer && !isClient) throw new AppError(EMAIL_NOT_FOUND);
     const userInfo = isClient || isFreelancer;
+    if(userInfo.verified) throw new AppError(EMAIL_VERIFIED);
+    const otpDoc = await Otp.findOne({ _userId: userInfo._id  });
+    if(!otpDoc) throw new AppError(OTP_EXPIRED);
+    if(otpDoc.otp !== code) throw new AppError(INVALID_OTP);
     if (userInfo.userType === userTypes.CLIENT)
-      await Client.findById(userInfo._id).update({ verified: true });
-    else await Freelancer.findById(userInfo._id).update({ verified: true });
+      await Client.findById(userInfo._id).updateOne({ verified: true });
+    else await Freelancer.findById(userInfo._id).updateOne({ verified: true });
+    await Otp.findByIdAndDelete(otpDoc._id);
     return res.status(NO_CONTENT).send();
   } catch (err) {
     return next(err);
@@ -114,7 +128,18 @@ const sendReset = async (req, res, next) => {
     const isClient = await Client.findOne({ email });
     if (!isFreelancer && !isClient) throw new AppError(EMAIL_NOT_FOUND);
     const userInfo = isFreelancer || isClient;
-    await SendResetPasswordEmail(userInfo.fullName, email);
+    const otp = await SendResetPasswordEmail(email);
+    const isOtp = await Otp.findOne({ _userId: userInfo._id });
+    if(isOtp){
+      await Otp.findByIdAndUpdate(isOtp._id, { otp });
+    }
+    else{
+      await Otp.create({
+        _userId: userInfo._id,
+        otp,
+        model: userInfo.constructor.modelName
+      });
+    }
     return res.status(NO_CONTENT).send();
   } catch (err) {
     return next(err);
@@ -123,30 +148,23 @@ const sendReset = async (req, res, next) => {
 
 const resetPassword = async (req, res, next) => {
   try {
-    const { token } = req.params;
-    const decoded = verifyToken(token, tokenTypes.PUBLIC);
-    if (decoded instanceof Error) throw new AppError(INVALID_AUTH);
-    const { email } = decoded;
+    const { email, code, password } = req.body;
     const isFreelancer = await Freelancer.findOne({ email });
     const isClient = await Client.findOne({ email });
-
     const userInfo = isFreelancer || isClient;
     if (!userInfo) throw new AppError(EMAIL_NOT_FOUND);
-
-    const { password } = req.body;
-
+    const otpDoc = await Otp.findOne({ _userId: userInfo._id  });
+    if(!otpDoc) throw new AppError(OTP_EXPIRED);
+    if(otpDoc.otp !== code) throw new AppError(INVALID_OTP);
     const isPasswordMatch = compareSync(password, userInfo.password);
-
     if(isPasswordMatch) throw new AppError(PASSWORD_MATCH);
-
     userDataValidator(PASSWORD, password);
-
     // hash plain password
     const hashPass = hashSync(password, 15);
-
     if (userInfo.userType === userTypes.CLIENT)
       await Client.findOne({ email }).update({ password: hashPass });
     else await Freelancer.findOne({ email }).update({ password: hashPass });
+    await Otp.findByIdAndDelete(otpDoc._id);
     return res.status(NO_CONTENT).send();
   } catch (err) {
     return next(err);

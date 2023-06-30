@@ -1,5 +1,6 @@
 import { default as Client } from "../mongodb/models/Client.js";
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
+import { default as Otp } from "../mongodb/models/Otp.js";
 import CreateUserInfoService from "../services/CreateUserInfoService.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import AppError from "../constants/AppError.js";
@@ -43,10 +44,16 @@ const createClient = async (req, res, next) => {
       throw new AppError(EMAIL_EXIST);
 
     // Create client in our database
-    await Client.create(validUserInfo);
+    const newClient = await Client.create(validUserInfo);
 
     // Send verification email
-    await SendVerificationEmail(validUserInfo.email);
+    const otp = await SendVerificationEmail(validUserInfo.email);
+
+    await Otp.create({
+      _userId: newClient._id,
+      otp,
+      model: "Client"
+    });
 
     return res.status(CREATED).json({});
   } catch (err) {

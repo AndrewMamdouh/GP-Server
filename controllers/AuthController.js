@@ -59,13 +59,13 @@ const login = async (req, res, next) => {
       await TokenModel.updateOne({ _userId: userInfo._id }, { token: refresh });
 
     // Assigning refresh token in signed cookie
-    res.cookie("Auth", refresh, {
-      signed: true,
-      maxAge: 60 * 60 * 24 * 365,
-    });
+    // res.cookie("Auth", refresh, {
+    //   signed: true,
+    //   maxAge: 60 * 60 * 24 * 365,
+    // });
 
-    // return access token
-    return res.status(OK).json({ access });
+    // return access and refresh token
+    return res.status(OK).json({ access, refresh });
   } catch (err) {
     return next(err);
   }
@@ -73,7 +73,7 @@ const login = async (req, res, next) => {
 
 const refreshToken = async (req, res, next) => {
   try {
-    const refreshToken = req.signedCookies.Auth;
+    const { token: refreshToken } = req.body;
 
     if (!refreshToken) throw new AppError(AUTH_REQUIRED);
 
@@ -101,10 +101,10 @@ const refreshToken = async (req, res, next) => {
       );
 
       // Assigning refresh token in new signed cookie
-      res.cookie("Auth", refresh, { signed: true });
+      //res.cookie("Auth", refresh, { signed: true });
 
       // return access token
-      return res.status(OK).json({ access });
+      return res.status(OK).json({ access, refresh });
     }
 
     throw new AppError(errorEnum.INVALID_AUTH);

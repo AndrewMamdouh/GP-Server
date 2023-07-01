@@ -162,8 +162,8 @@ const resetPassword = async (req, res, next) => {
     // hash plain password
     const hashPass = hashSync(password, 15);
     if (userInfo.userType === userTypes.CLIENT)
-      await Client.findOne({ email }).update({ password: hashPass });
-    else await Freelancer.findOne({ email }).update({ password: hashPass });
+      await Client.findOne({ email }).updateOne({ password: hashPass });
+    else await Freelancer.findOne({ email }).updateOne({ password: hashPass });
     await Otp.findByIdAndDelete(otpDoc._id);
     return res.status(NO_CONTENT).send();
   } catch (err) {

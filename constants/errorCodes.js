@@ -33,6 +33,7 @@ export const errorEnum = {
   WRONG_PASSWORD: 'WRONG_PASSWORD',
   PASSWORD_MATCH: 'PASSWORD_MATCH',
   LOCATION_API_ERROR: 'LOCATION_API_ERROR',
+  ML_MODEL_API_ERROR: 'ML_MODEL_API_ERROR',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
   OTP_EXPIRED: 'OTP_EXPIRED'
 }
@@ -208,6 +209,11 @@ export const errorCodes = {
   [errorEnum.LOCATION_API_ERROR]: {
     statusCode: httpResponseCodes.INTERNAL_SERVER_ERROR,
     message: "Something went wrong in reverse geocoding API.",
+  },
+
+  [errorEnum.ML_MODEL_API_ERROR]: {
+    statusCode: httpResponseCodes.INTERNAL_SERVER_ERROR,
+    message: "Something went wrong in machine model API.",
   },
 
   [errorEnum.INTERNAL_ERROR]: {

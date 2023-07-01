@@ -7,7 +7,8 @@ import {
   isMember,
   isBetween,
   isNum,
-  isString
+  isString,
+  isUrl
 } from "./checkValidity.js";
 import AppError from "../constants/AppError.js";
 import { errorEnum } from "../constants/errorCodes.js";
@@ -27,7 +28,7 @@ const {
   INVALID_DESCRIPTION,
   INVALID_URL
 } = errorEnum;
-const { matches, isEmail, isMobilePhone, isURL } = validator;
+const { matches, isEmail, isMobilePhone } = validator;
 const {
   USERNAME,
   PROFILE_PIC,
@@ -55,7 +56,7 @@ const userDataValidator = (dataType, data) => {
       case PROFILE_PIC:
           if (isNull(data) || isEmpty(data))
             throw new AppError(ALL_FIELDS_REQUIRED);
-          if(!isURL(data))
+          if(!isUrl(data))
             throw new AppError(INVALID_URL);
   
       break;

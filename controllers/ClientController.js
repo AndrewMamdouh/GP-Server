@@ -1,14 +1,17 @@
 import { default as Client } from "../mongodb/models/Client.js";
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
+import { default as PortfolioItem } from '../mongodb/models/PortfolioItem.js';
 import { default as Otp } from "../mongodb/models/Otp.js";
 import CreateUserInfoService from "../services/CreateUserInfoService.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import AppError from "../constants/AppError.js";
-import { isEmpty, isNull, isString } from "../utils/checkValidity.js";
+import { isEmpty, isNull, isString, isUrl } from "../utils/checkValidity.js";
 import SendVerificationEmail from "../services/SendVerificationEmail.js";
 import { isValidObjectId } from "mongoose";
+import SearchPortfolioItemService from "../services/SearchPortfolioItemService.js";
+import normalizePortfolioItems from "../utils/normalizePortfolioItems.js";
 
-const { USERNAME_EXIST, EMAIL_EXIST, INVALID_ID, FAV_EXIST } = errorEnum;
+const { USERNAME_EXIST, EMAIL_EXIST, INVALID_ID, FAV_EXIST, INVALID_URL } = errorEnum;
 const { CREATED, NOT_FOUND, OK, FORBIDDEN, BAD_REQUEST, NO_CONTENT } = httpResponseCodes;
 
 const createClient = async (req, res, next) => {
@@ -191,17 +194,17 @@ const removeFromFavList = async (req, res, next) => {
   }
 };
 
-const search = async (req, res, next) => {
+const searchFreelancers = async (req, res, next) => {
   try {
-    if (!req.user) return res;
+    // if (!req.user) return res;
 
-    const { id: userId } = req.user;
+    // const { id: userId } = req.user;
 
-    const isFreelancer = await Freelancer.findById(userId);
-    const isClient = await Client.findById(userId);
+    // const isFreelancer = await Freelancer.findById(userId);
+    // const isClient = await Client.findById(userId);
 
-    if (isFreelancer) return res.status(FORBIDDEN).json({});
-    if (!isClient) return res.status(NOT_FOUND).json({});
+    // if (isFreelancer) return res.status(FORBIDDEN).json({});
+    // if (!isClient) return res.status(NOT_FOUND).json({});
 
     // Get search query
     const { query } = req.query;
@@ -228,11 +231,56 @@ const search = async (req, res, next) => {
   }
 };
 
+const searchPortfolioItems = async (req, res, next) => {
+  try {
+    // if (!req.user) return res;
+
+    // const { id: userId } = req.user;
+
+    // const isFreelancer = await Freelancer.findById(userId);
+    // const isClient = await Client.findById(userId);
+
+    // if (isFreelancer) return res.status(FORBIDDEN).json({});
+    // if (!isClient) return res.status(NOT_FOUND).json({});
+
+    // Get image url
+    const { url } = req.query;
+
+    if(!isUrl(url)) throw new AppError(INVALID_URL);
+
+    const allPortfolioItems = await PortfolioItem.find({}, {
+      __v: false,
+      owner: false,
+      date: false,
+      url: false
+    })
+
+    console.log(allPortfolioItems)
+
+    const features = normalizePortfolioItems(allPortfolioItems);
+     
+    const result = await SearchPortfolioItemService(url, features);
+
+    // Create PortfolioItem in our database
+    const matchingPortfolioItems = await PortfolioItem.find({
+      _id: { $in: result instanceof AppError ? [] : result }
+    }, {
+      __v: false,
+      features: false
+    });
+
+    return res.status(OK).json(matchingPortfolioItems);
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export {
   createClient,
   getClient,
   addToVisitList,
   addToFavList,
   removeFromFavList,
-  search,
+  searchFreelancers,
+  searchPortfolioItems
 };

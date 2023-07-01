@@ -4,6 +4,7 @@ export const userTypes = {
 }
 
 export const freelancerTypes = {
-    PHOTOGRAPHER: 'PHOTOGRAPHER',
-    GRAPHIC_DESIGNER: 'GRAPHIC_DESIGNER'
+    PHOTOGRAPHER: 'Photographer',
+    GRAPHIC_DESIGNER: 'Graphic Designer',
+    ARTIST: 'Artist'
 }

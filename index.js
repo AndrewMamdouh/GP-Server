@@ -11,6 +11,7 @@ import FreelancerRouter from "./routes/FreelancerRoutes.js";
 import PackageRouter from "./routes/PackageRoutes.js";
 import ReviewRouter from "./routes/ReviewRoutes.js";
 import PortfolioItemRouter from "./routes/PortfolioItemRoutes.js";
+import HomeRouter from "./routes/HomeRoutes.js";
 
 dotenv.config();
 const { PORT, MONGODB_URI, COOKIE_KEY } = process.env;
@@ -28,6 +29,7 @@ app.use("/api/v1/freelancers", FreelancerRouter);
 app.use("/api/v1/packages", PackageRouter);
 app.use("/api/v1/reviews", ReviewRouter);
 app.use("/api/v1/portfolio", PortfolioItemRouter);
+app.use("/api/v1/home", HomeRouter);
 
 const startServer = async () => {
   try {

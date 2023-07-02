@@ -30,9 +30,10 @@ const addPortfolioItem = async (req, res, next) => {
 
     // Create PortfolioItem in our database
     await PortfolioItem.create({
-        owner: isFreelancer._id,
-        url,
-        features
+      owner: isFreelancer._id,
+      type: isFreelancer.freelancerType,
+      url,
+      features
     });
 
     return res.status(OK).json({});
@@ -88,7 +89,8 @@ const getAllPortfolioItems = async (req, res, next) => {
     // Match all these packages in our database
     const portfolioItems = await PortfolioItem.find({ owner: isFreelancer._id }, {
       __v: false,
-      features: false
+      features: false,
+      type: false
     });
 
     return res.status(OK).json(portfolioItems);

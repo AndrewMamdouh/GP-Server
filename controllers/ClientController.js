@@ -10,6 +10,7 @@ import SendVerificationEmail from "../services/SendVerificationEmail.js";
 import { isValidObjectId } from "mongoose";
 import SearchPortfolioItemService from "../services/SearchPortfolioItemService.js";
 import normalizePortfolioItems from "../utils/normalizePortfolioItems.js";
+import { userData } from "../constants/userData.js";
 
 const { USERNAME_EXIST, EMAIL_EXIST, INVALID_ID, FAV_EXIST, INVALID_URL } = errorEnum;
 const { CREATED, NOT_FOUND, OK, FORBIDDEN, BAD_REQUEST, NO_CONTENT } = httpResponseCodes;
@@ -17,11 +18,12 @@ const { CREATED, NOT_FOUND, OK, FORBIDDEN, BAD_REQUEST, NO_CONTENT } = httpRespo
 const createClient = async (req, res, next) => {
   try {
     // Get user input
-    const { username, fullName, email, password } = req.body;
+    const { username, profilePic, fullName, email, password } = req.body;
 
     // Validate user input
     const validUserInfo = CreateUserInfoService({
       username,
+      profilePic,
       fullName,
       email,
       password,
@@ -147,9 +149,7 @@ const addToFavList = async (req, res, next) => {
 
     if (!isFreelancerExists) return res.status(NOT_FOUND).json({});
 
-    const freelancerInFav = await Client.find({ favList: { $in: [id] } });
-
-    if(freelancerInFav) throw new AppError(FAV_EXIST);
+    if(isClient.favList.includes(id)) throw new AppError(FAV_EXIST);
 
     await isClient.updateOne({ $addToSet: { favList: id } });
 
@@ -180,11 +180,7 @@ const removeFromFavList = async (req, res, next) => {
     // Check if id valid
     const isFreelancerExists = await Freelancer.findById(id);
 
-    if (!isFreelancerExists) return res.status(NOT_FOUND).json({});
-
-    const freelancerInFav = await Client.find({ favList: { $in: [id] } });
-
-    if(!freelancerInFav) return res.status(NOT_FOUND).json({});
+    if (!isFreelancerExists || !isClient.favList.includes(id)) return res.status(NOT_FOUND).json({});
 
     await isClient.updateOne({ $pull: { favList: id } });
 
@@ -244,18 +240,18 @@ const searchPortfolioItems = async (req, res, next) => {
     // if (!isClient) return res.status(NOT_FOUND).json({});
 
     // Get image url
-    const { url } = req.query;
+    const { url, type } = req.query;
+
+    userDataValidator(userData.FREELANCER_TYPE, type);
 
     if(!isUrl(url)) throw new AppError(INVALID_URL);
 
-    const allPortfolioItems = await PortfolioItem.find({}, {
+    const allPortfolioItems = await PortfolioItem.find({ type }, {
       __v: false,
       owner: false,
       date: false,
       url: false
     })
-
-    console.log(allPortfolioItems)
 
     const features = normalizePortfolioItems(allPortfolioItems);
      

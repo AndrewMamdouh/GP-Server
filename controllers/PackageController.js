@@ -8,7 +8,7 @@ import { freelancerPackageData } from "../constants/userData.js";
 import { isValidObjectId } from "mongoose";
 
 const { INVALID_ID } = errorEnum;
-const { FORBIDDEN, NO_CONTENT, NOT_FOUND, CREATED, OK } = httpResponseCodes;
+const { FORBIDDEN, NO_CONTENT, NOT_FOUND, CREATED, OK, UNAUTHORIZED } = httpResponseCodes;
 const { PHOTOS_NUM, DESCRIPTION, PRICE } = freelancerPackageData
 
 const createPackage = async (req, res, next) => {
@@ -68,6 +68,8 @@ const updatePackage = async (req, res, next) => {
     
      if(!packageData) return res.status(NOT_FOUND).json({});
 
+     if(userId !== packageData.owner.toString()) return res.status(UNAUTHORIZED).json({});
+
     // Get package info
     const { photosNum, description, price } = req.body;
 
@@ -113,6 +115,8 @@ const removePackage = async (req, res, next) => {
      const packageData = await Package.findById(id);
  
      if(!packageData) return res.status(NOT_FOUND).json({});
+
+     if(userId !== packageData.owner.toString()) return res.status(UNAUTHORIZED).json({});
 
     // Delete package from our database
     await Package.findByIdAndDelete(id);

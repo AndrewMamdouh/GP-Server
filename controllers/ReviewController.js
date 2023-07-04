@@ -7,6 +7,7 @@ import { isValidObjectId } from "mongoose";
 import { errorEnum, httpResponseCodes } from '../constants/errorCodes.js';
 import CreateReviewService from '../services/CreateReviewService.js';
 import { bookingOrderStates } from '../constants/models.js';
+import CalculateFreelancerRateService from '../services/CalculateFreelancerRateService.js';
 
 
 const { COMPLETED } = bookingOrderStates;
@@ -43,8 +44,17 @@ const createReview = async (req, res, next) => {
     const validReviewInfo = CreateReviewService({ content });
 
     // Create review in our database
-    const newReview = await Review.create({ ...validReviewInfo, from, to });
-    
+    await Review.create({ ...validReviewInfo, from, to, sentiment: Math.round(Math.random()) });
+
+    const reviews = await Review.find({ to });
+    const sentiments = reviews.map(review => review.sentiment);
+
+    const rate = CalculateFreelancerRateService(sentiments);
+
+    await Freelancer.findByIdAndUpdate(to, {
+      rate
+    })
+
     res.status(CREATED).json({});
     
   } catch (err) {
@@ -74,13 +84,24 @@ const updateReview = async (req, res, next) => {
 
     if(!isReviewExist) return res.status(NOT_FOUND).json({});
 
+    if(userId !== isReviewExist.from.toString()) return res.status(UNAUTHORIZED).json({});
+
     // Get review updated content
     const { content } = req.body;
 
     const validReviewInfo = CreateReviewService({ content });
 
     // Update review in our database
-    await Review.findByIdAndUpdate(id, { ...validReviewInfo });
+    const targetReview = await Review.findByIdAndUpdate(id, { ...validReviewInfo, sentiment: Math.round(Math.random()) });
+
+    const reviews = await Review.find({ to: targetReview.to });
+    const sentiments = reviews.map(review => review.sentiment);
+
+    const rate = CalculateFreelancerRateService(sentiments);
+
+    await Freelancer.findByIdAndUpdate(targetReview.to, {
+      rate
+    })
 
     return res.status(NO_CONTENT).send();
     
@@ -111,8 +132,19 @@ const deleteReview = async (req, res, next) => {
 
     if(!isReviewExist) return res.status(NOT_FOUND).json({});
 
+    if(userId !== isReviewExist.from.toString()) return res.status(UNAUTHORIZED).json({});
+
     // delete review from our database
     await Review.findByIdAndDelete(id);
+
+    const reviews = await Review.find({ to: isReviewExist.to });
+    const sentiments = reviews.map(review => review.sentiment);
+
+    const rate = CalculateFreelancerRateService(sentiments);
+
+    await Freelancer.findByIdAndUpdate(isReviewExist.to, {
+      rate
+    })
 
     return res.status(NO_CONTENT).send();
     

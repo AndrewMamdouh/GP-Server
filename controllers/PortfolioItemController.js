@@ -8,7 +8,7 @@ import { isUrl } from '../utils/checkValidity.js';
 import UploadPortfolioItemService from '../services/UploadPortfolioItemService.js';
 
 const { INVALID_ID, INVALID_URL } = errorEnum; 
-const { OK, NO_CONTENT, FORBIDDEN, NOT_FOUND } = httpResponseCodes;
+const { OK, NO_CONTENT, FORBIDDEN, NOT_FOUND, UNAUTHORIZED } = httpResponseCodes;
 
 const addPortfolioItem = async (req, res, next) => {
   try {
@@ -64,6 +64,8 @@ const removePortfolioItem = async (req, res, next) => {
     const portfolioItemData = await PortfolioItem.findById(id);
 
     if(!portfolioItemData) return res.status(NOT_FOUND).json({});
+
+    if(userId !== portfolioItemData.owner.toString()) return res.status(UNAUTHORIZED).json({});
 
    // Delete package from our database
    await PortfolioItem.findByIdAndDelete(id);

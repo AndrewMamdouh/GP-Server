@@ -19,6 +19,7 @@ const FreelancerSchema = new Schema({
   phoneNum: { type: String, required: true },
   hourlyRate: { type: Number, required: true },
   description: { type: String, required: true },
+  rate: { type: Number, default: null }
 });
 
 const FreelancerModel = model("Freelancer", FreelancerSchema);

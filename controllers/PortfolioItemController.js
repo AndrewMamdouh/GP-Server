@@ -76,6 +76,8 @@ const removePortfolioItem = async (req, res, next) => {
 
 const getAllPortfolioItems = async (req, res, next) => {
   try {
+    if (!req.user) return res;
+    
     // Get freelancer ID
     const id = req.params.id;
 

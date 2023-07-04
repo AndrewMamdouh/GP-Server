@@ -7,7 +7,9 @@ import {
   addToFavList,
   removeFromFavList,
   searchFreelancers,
-  searchPortfolioItems
+  searchPortfolioItems,
+  createBookingOrder,
+  completeBookingOrder
 } from "../controllers/ClientController.js";
 import errorHandler from "../middlewares/errorHandler.js";
 import authHandler from "../middlewares/authHandler.js";
@@ -15,11 +17,13 @@ import authHandler from "../middlewares/authHandler.js";
 const ClientRouter = express.Router();
 
 ClientRouter.route("/").post(createClient, errorHandler);
-ClientRouter.route("/search/freelancers").get(searchFreelancers, errorHandler);
-ClientRouter.route("/search/images").get(searchPortfolioItems, errorHandler);
-ClientRouter.route("/:id").get(getClient, errorHandler);
+ClientRouter.route("/search/freelancers").get(authHandler, searchFreelancers, errorHandler);
+ClientRouter.route("/search/images").get(authHandler, searchPortfolioItems, errorHandler);
+ClientRouter.route("/:id").get(authHandler, getClient, errorHandler);
 ClientRouter.route("/visit").post(authHandler, addToVisitList, errorHandler);
 ClientRouter.route("/fav").post(authHandler, addToFavList, errorHandler);
 ClientRouter.route("/fav/:id").delete(authHandler, removeFromFavList, errorHandler);
+ClientRouter.route("/orders/create").post(authHandler, createBookingOrder, errorHandler);
+ClientRouter.route("/orders/complete").post(authHandler, completeBookingOrder, errorHandler);
 
 export default ClientRouter;

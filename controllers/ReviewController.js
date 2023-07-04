@@ -1,13 +1,17 @@
 import { default as Review } from '../mongodb/models/Review.js';
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
 import { default as Client } from "../mongodb/models/Client.js";
+import { default as BookingOrder } from '../mongodb/models/BookingOrder.js';
 import AppError from '../constants/AppError.js';
 import { isValidObjectId } from "mongoose";
 import { errorEnum, httpResponseCodes } from '../constants/errorCodes.js';
 import CreateReviewService from '../services/CreateReviewService.js';
+import { bookingOrderStates } from '../constants/models.js';
 
+
+const { COMPLETED } = bookingOrderStates;
 const { INVALID_ID, REVIEW_EXIST } = errorEnum; 
-const { CREATED, OK, NO_CONTENT, FORBIDDEN, NOT_FOUND } = httpResponseCodes;
+const { CREATED, OK, NO_CONTENT, FORBIDDEN, NOT_FOUND, UNAUTHORIZED } = httpResponseCodes;
 
 const createReview = async (req, res, next) => {
   try {
@@ -22,26 +26,24 @@ const createReview = async (req, res, next) => {
     if (!isClient) return res.status(NOT_FOUND).json({});
     
     const from = isClient._id;
-
-    const reviewExists = await Review.findOne({ from });
-
-    // Check if client reviewed freelancer before
-    if (reviewExists) throw new AppError(REVIEW_EXIST);
-    
     const { content, to } = req.body;
-
-    const validReviewInfo = CreateReviewService({ content });
 
     // Check if id is valid
     if(!isValidObjectId(to)) throw new AppError(INVALID_ID);
 
+    const bookingOrderExists = await BookingOrder.findOne({ from, to, state: COMPLETED });
+
+    if(!bookingOrderExists) return res.status(UNAUTHORIZED).json({});
+
+    const reviewExists = await Review.findOne({ from, to });
+
+    // Check if client reviewed freelancer before
+    if (reviewExists) throw new AppError(REVIEW_EXIST);
+    
+    const validReviewInfo = CreateReviewService({ content });
+
     // Create review in our database
     const newReview = await Review.create({ ...validReviewInfo, from, to });
-
-    // Add review to freelancer
-    await Freelancer.findByIdAndUpdate(to, {
-      $addToSet: { reviews: newReview._id }
-    })
     
     res.status(CREATED).json({});
     
@@ -78,9 +80,9 @@ const updateReview = async (req, res, next) => {
     const validReviewInfo = CreateReviewService({ content });
 
     // Update review in our database
-    await Review.findByIdAndUpdate(id, { ...validReviewInfo })
+    await Review.findByIdAndUpdate(id, { ...validReviewInfo });
 
-    return res.status(NO_CONTENT).json({});
+    return res.status(NO_CONTENT).send();
     
   } catch (err) {
     return next(err);
@@ -110,7 +112,7 @@ const deleteReview = async (req, res, next) => {
     if(!isReviewExist) return res.status(NOT_FOUND).json({});
 
     // delete review from our database
-    await Review.findByIdAndDelete(id)
+    await Review.findByIdAndDelete(id);
 
     return res.status(NO_CONTENT).send();
     
@@ -121,6 +123,8 @@ const deleteReview = async (req, res, next) => {
 
 const getAllReviews = async (req, res, next) => {
   try {
+    if (!req.user) return res;
+    
     // Get freelancer ID
     const id = req.params.id;
 

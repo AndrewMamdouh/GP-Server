@@ -85,7 +85,7 @@ const updatePackage = async (req, res, next) => {
     // Update package in our database
     await Package.findByIdAndUpdate(id, { ...updateKeys })
 
-    return res.status(NO_CONTENT).json({});
+    return res.status(NO_CONTENT).send();
   } catch (err) {
     return next(err);
   }
@@ -125,6 +125,8 @@ const removePackage = async (req, res, next) => {
 
 const getAllPackages = async (req, res, next) => {
   try {
+    if (!req.user) return res;
+    
     // Get freelancer ID
     const id = req.params.id;
 

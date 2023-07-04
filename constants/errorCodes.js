@@ -35,7 +35,11 @@ export const errorEnum = {
   LOCATION_API_ERROR: 'LOCATION_API_ERROR',
   ML_MODEL_API_ERROR: 'ML_MODEL_API_ERROR',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
-  OTP_EXPIRED: 'OTP_EXPIRED'
+  OTP_EXPIRED: 'OTP_EXPIRED',
+  PENDING_ORDER: 'PENDING_ORDER',
+  IN_PROGRESS_ORDER: 'IN_PROGRESS_ORDER',
+  NO_ACTIVE_ORDER: 'NO_ACTIVE_ORDER',
+  NO_PENDING_ORDER: 'NO_PENDING_ORDER'
 }
 
 export const httpResponseCodes = {
@@ -224,5 +228,25 @@ export const errorCodes = {
   [errorEnum.OTP_EXPIRED]: {
     statusCode: httpResponseCodes.NOT_FOUND,
     message: "OTP expired (it expires in 30 mins).",
+  },
+
+  [errorEnum.PENDING_ORDER]: {
+    statusCode: httpResponseCodes.CONFLICT,
+    message: "There is a pending order to same freelancer.",
+  },
+
+  [errorEnum.IN_PROGRESS_ORDER]: {
+    statusCode: httpResponseCodes.CONFLICT,
+    message: "There is an active order to same freelancer.",
+  },
+
+  [errorEnum.NO_ACTIVE_ORDER]: {
+    statusCode: httpResponseCodes.NOT_FOUND,
+    message: "No active order has been found.",
+  },
+
+  [errorEnum.NO_PENDING_ORDER]: {
+    statusCode: httpResponseCodes.NOT_FOUND,
+    message: "No pending order has been found.",
   },
 };

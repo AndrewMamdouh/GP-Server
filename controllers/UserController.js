@@ -66,7 +66,7 @@ const updateProfile = async (req, res, next) => {
       ? await Freelancer.findByIdAndUpdate(userId, { ...updateKeys })
       : await Client.findByIdAndUpdate(userId, { ...updateKeys });
 
-    return res.status(NO_CONTENT).json({});
+    return res.status(NO_CONTENT).send();
   } catch (err) {
     return next(err);
   }
@@ -111,8 +111,8 @@ const verifyUser = async (req, res, next) => {
     if(!otpDoc) throw new AppError(OTP_EXPIRED);
     if(otpDoc.otp !== code) throw new AppError(INVALID_OTP);
     if (userInfo.userType === userTypes.CLIENT)
-      await Client.findById(userInfo._id).updateOne({ verified: true });
-    else await Freelancer.findById(userInfo._id).updateOne({ verified: true });
+      await Client.findByIdAndUpdate(userInfo._id, { verified: true });
+    else await Freelancer.findByIdAndUpdate(userInfo._id, { verified: true });
     await Otp.findByIdAndDelete(otpDoc._id);
     return res.status(NO_CONTENT).send();
   } catch (err) {
@@ -162,8 +162,8 @@ const resetPassword = async (req, res, next) => {
     // hash plain password
     const hashPass = hashSync(password, 15);
     if (userInfo.userType === userTypes.CLIENT)
-      await Client.findOne({ email }).updateOne({ password: hashPass });
-    else await Freelancer.findOne({ email }).updateOne({ password: hashPass });
+      await Client.updateOne({ email }, { password: hashPass });
+    else await Freelancer.updateOne({ email }, { password: hashPass });
     await Otp.findByIdAndDelete(otpDoc._id);
     return res.status(NO_CONTENT).send();
   } catch (err) {

@@ -8,7 +8,7 @@ import authHandler from "../middlewares/authHandler.js"
 
 const HomeRouter = express.Router();
 
-HomeRouter.route("/explore").get(explore, errorHandler);
+HomeRouter.route("/explore").get(authHandler, explore, errorHandler);
 HomeRouter.route("/top-picks").get(authHandler, getTopPicks, errorHandler);
 
 export default HomeRouter;

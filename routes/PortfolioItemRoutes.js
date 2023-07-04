@@ -12,6 +12,6 @@ const PortfolioItemRouter = express.Router();
 
 PortfolioItemRouter.route("/").post(authHandler, addPortfolioItem, errorHandler);
 PortfolioItemRouter.route("/:id").delete(authHandler, removePortfolioItem, errorHandler);
-PortfolioItemRouter.route("/:id").get(getAllPortfolioItems, errorHandler);
+PortfolioItemRouter.route("/:id").get(authHandler, getAllPortfolioItems, errorHandler);
 
 export default PortfolioItemRouter;

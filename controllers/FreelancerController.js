@@ -1,6 +1,7 @@
 import { default as Freelancer } from "../mongodb/models/Freelancer.js";
 import { default as Client } from "../mongodb/models/Client.js";
 import { default as Otp } from "../mongodb/models/Otp.js";
+import { default as BookingOrder } from "../mongodb/models/BookingOrder.js";
 import CreateUserInfoService from "../services/CreateUserInfoService.js";
 import CreateFreelancerInfoService from "../services/CreateFreelancerInfoService.js";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
@@ -8,9 +9,11 @@ import AppError from "../constants/AppError.js";
 import GetCity from "../services/GetCity.js";
 import SendVerificationEmail from "../services/SendVerificationEmail.js";
 import { isValidObjectId } from "mongoose";
+import { bookingOrderStates } from "../constants/models.js";
 
-const { USERNAME_EXIST, EMAIL_EXIST, INVALID_ID } = errorEnum;
-const { CREATED, NOT_FOUND, OK } = httpResponseCodes;
+const { PENDING, IN_PROGRESS, REFUSED } = bookingOrderStates;
+const { USERNAME_EXIST, EMAIL_EXIST, INVALID_ID, NO_PENDING_ORDER } = errorEnum;
+const { CREATED, NOT_FOUND, OK, NO_CONTENT, FORBIDDEN } = httpResponseCodes;
 
 const createFreelancer = async (req, res, next) => {
   try {
@@ -91,6 +94,8 @@ const createFreelancer = async (req, res, next) => {
 
 const getFreelancer = async (req, res, next) => {
   try {
+    if (!req.user) return res;
+    
     // Get freelancer ID
     const id = req.params.id;
 
@@ -118,4 +123,76 @@ const getFreelancer = async (req, res, next) => {
   }
 };
 
-export { createFreelancer, getFreelancer };
+const acceptBookingOrder = async (req, res, next) => {
+  try {
+    if (!req.user) return res;
+
+    const { id: userId } = req.user;
+
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
+
+    if (isClient) return res.status(FORBIDDEN).json({});
+    if (!isFreelancer) return res.status(NOT_FOUND).json({});
+
+    const { from } = req.body;
+
+     // Check if id is valid
+     if (!isValidObjectId(from)) throw new AppError(INVALID_ID);
+
+     // Check if id valid
+     const isClientExists = await Client.findById(from);
+ 
+     if (!isClientExists) return res.status(NOT_FOUND).json({});
+
+     const hasPendingOrder = await BookingOrder.findOne({ from, to: isFreelancer._id, state: PENDING });
+
+     if(!hasPendingOrder) throw new AppError(NO_PENDING_ORDER);
+
+    await BookingOrder.findByIdAndUpdate(hasPendingOrder._id, {
+      state: IN_PROGRESS
+    })
+
+    return res.status(NO_CONTENT).send();
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const refuseBookingOrder = async (req, res, next) => {
+  try {
+    if (!req.user) return res;
+
+    const { id: userId } = req.user;
+
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
+
+    if (isClient) return res.status(FORBIDDEN).json({});
+    if (!isFreelancer) return res.status(NOT_FOUND).json({});
+
+    const { from } = req.body;
+
+     // Check if id is valid
+     if (!isValidObjectId(from)) throw new AppError(INVALID_ID);
+
+     // Check if id valid
+     const isClientExists = await Client.findById(from);
+ 
+     if (!isClientExists) return res.status(NOT_FOUND).json({});
+
+     const hasPendingOrder = await BookingOrder.findOne({ from, to: isFreelancer._id, state: PENDING });
+
+     if(!hasPendingOrder) throw new AppError(NO_PENDING_ORDER);
+
+    await BookingOrder.findByIdAndUpdate(hasPendingOrder._id, {
+      state: REFUSED
+    })
+
+    return res.status(NO_CONTENT).send();
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export { createFreelancer, getFreelancer, acceptBookingOrder, refuseBookingOrder };

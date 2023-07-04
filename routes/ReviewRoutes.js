@@ -8,6 +8,6 @@ const ReviewRouter = express.Router();
 ReviewRouter.route("/").post(authHandler, createReview, errorHandler);
 ReviewRouter.route("/:id").patch(authHandler, updateReview, errorHandler);
 ReviewRouter.route("/:id").delete(authHandler, deleteReview, errorHandler);
-ReviewRouter.route("/:id").get(getAllReviews, errorHandler);
+ReviewRouter.route("/:id").get(authHandler, getAllReviews, errorHandler);
 
 export default ReviewRouter;

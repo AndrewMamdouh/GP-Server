@@ -7,6 +7,16 @@ const { OK, FORBIDDEN, NOT_FOUND } = httpResponseCodes;
 
 const explore = async (req, res, next) => {
   try {
+    if (!req.user) return res;
+
+    const { id: userId } = req.user;
+
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
+
+    if (isFreelancer) return res.status(FORBIDDEN).json({});
+    if (!isClient) return res.status(NOT_FOUND).json({});
+    
     const itemSize = await PortfolioItem.countDocuments();
 
     const items = await PortfolioItem.aggregate([

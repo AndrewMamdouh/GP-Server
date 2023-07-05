@@ -1,5 +1,5 @@
 import AppError from "../constants/AppError.js";
-import { axiosInstance } from "../constants/axiosMl.js"
+import { axiosInstance } from "../constants/axiosImageMl.js"
 import { errorEnum } from "../constants/errorCodes.js";
 
 const UploadPortfolioItemService = async (url) => {

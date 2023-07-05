@@ -8,6 +8,7 @@ import { errorEnum, httpResponseCodes } from '../constants/errorCodes.js';
 import CreateReviewService from '../services/CreateReviewService.js';
 import { bookingOrderStates } from '../constants/models.js';
 import CalculateFreelancerRateService from '../services/CalculateFreelancerRateService.js';
+import SentimentalAnalysisService from '../services/SentimentalAnalysisService.js';
 
 
 const { COMPLETED } = bookingOrderStates;
@@ -43,8 +44,12 @@ const createReview = async (req, res, next) => {
     
     const validReviewInfo = CreateReviewService({ content });
 
+    const result = await SentimentalAnalysisService(content);
+
+    if (result instanceof AppError) throw result;
+
     // Create review in our database
-    await Review.create({ ...validReviewInfo, from, to, sentiment: Math.round(Math.random()) });
+    await Review.create({ ...validReviewInfo, from, to, sentiment: result.predictions });
 
     const reviews = await Review.find({ to });
     const sentiments = reviews.map(review => review.sentiment);
@@ -91,8 +96,12 @@ const updateReview = async (req, res, next) => {
 
     const validReviewInfo = CreateReviewService({ content });
 
+    const result = await SentimentalAnalysisService(content);
+
+    if (result instanceof AppError) throw result;
+
     // Update review in our database
-    const targetReview = await Review.findByIdAndUpdate(id, { ...validReviewInfo, sentiment: Math.round(Math.random()) });
+    const targetReview = await Review.findByIdAndUpdate(id, { ...validReviewInfo, sentiment: result.predictions });
 
     const reviews = await Review.find({ to: targetReview.to });
     const sentiments = reviews.map(review => review.sentiment);

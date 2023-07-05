@@ -1,14 +1,13 @@
 import AppError from "../constants/AppError.js";
-import { axiosInstance } from "../constants/axiosImageMl.js"
+import { axiosInstance } from "../constants/axiosSentimentMl.js"
 import { errorEnum } from "../constants/errorCodes.js";
 
-const SearchPortfolioItemService = async (url, features) => {
+const SentimentalAnalysisService = async (content) => {
     try {
       const { data } = await axiosInstance.request({
-        url: '/search',
-        data: {
-            image_url: url,
-            features
+        url: '/model',
+        params: {
+            sentence: content
         }
       });
       if(data.error) throw new Error;
@@ -18,4 +17,4 @@ const SearchPortfolioItemService = async (url, features) => {
     }
   };
   
-  export default SearchPortfolioItemService;
+  export default SentimentalAnalysisService;

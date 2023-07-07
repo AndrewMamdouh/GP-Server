@@ -9,7 +9,7 @@ import LoginService from "../services/LoginService.js";
 import AppError from "../constants/AppError.js";
 import { tokenTypes } from "../constants/jwt.js";
 
-const { AUTH_REQUIRED, EMAIL_NOT_FOUND, WRONG_PASSWORD, EMAIL_NOT_VERIFIED } = errorEnum;
+const { AUTH_REQUIRED, EMAIL_NOT_FOUND, WRONG_PASSWORD, EMAIL_NOT_VERIFIED, ACCOUNT_SUSPENDED } = errorEnum;
 const { OK } = httpResponseCodes;
 const { ACCESS, REFRESH } = tokenTypes
 
@@ -37,6 +37,8 @@ const login = async (req, res, next) => {
     if (!isPasswordValid) throw new AppError(WRONG_PASSWORD);
 
     if(!userInfo.verified) throw new AppError(EMAIL_NOT_VERIFIED);
+
+    if(isFreelancer && userInfo.isSuspended) throw new AppError(ACCOUNT_SUSPENDED);
 
     // Create access token
     const access = createToken({ id: userInfo._id }, ACCESS);

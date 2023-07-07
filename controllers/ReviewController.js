@@ -56,9 +56,17 @@ const createReview = async (req, res, next) => {
 
     const rate = CalculateFreelancerRateService(sentiments);
 
-    await Freelancer.findByIdAndUpdate(to, {
-      rate
-    })
+    if(rate < 2 && reviews.length > 10){
+      await Freelancer.findByIdAndUpdate(to, {
+        rate,
+        isSuspended: true
+      })
+    }
+    else {
+      await Freelancer.findByIdAndUpdate(to, {
+        rate
+      })
+    }
 
     res.status(CREATED).json({});
     

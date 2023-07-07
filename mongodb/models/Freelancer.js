@@ -19,7 +19,8 @@ const FreelancerSchema = new Schema({
   phoneNum: { type: String, required: true },
   hourlyRate: { type: Number, required: true },
   description: { type: String, required: true },
-  rate: { type: Number, default: null }
+  rate: { type: Number, default: null },
+  isSuspended: { type: Boolean, default: false }
 });
 
 const FreelancerModel = model("Freelancer", FreelancerSchema);

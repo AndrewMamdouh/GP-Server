@@ -39,7 +39,8 @@ export const errorEnum = {
   PENDING_ORDER: 'PENDING_ORDER',
   IN_PROGRESS_ORDER: 'IN_PROGRESS_ORDER',
   NO_ACTIVE_ORDER: 'NO_ACTIVE_ORDER',
-  NO_PENDING_ORDER: 'NO_PENDING_ORDER'
+  NO_PENDING_ORDER: 'NO_PENDING_ORDER',
+  ACCOUNT_SUSPENDED: 'ACCOUNT_SUSPENDED'
 }
 
 export const httpResponseCodes = {
@@ -248,5 +249,10 @@ export const errorCodes = {
   [errorEnum.NO_PENDING_ORDER]: {
     statusCode: httpResponseCodes.NOT_FOUND,
     message: "No pending order has been found.",
+  },
+
+  [errorEnum.ACCOUNT_SUSPENDED]: {
+    statusCode: httpResponseCodes.UNAUTHORIZED,
+    message: "This account has been suspended.",
   },
 };

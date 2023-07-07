@@ -119,7 +119,7 @@ const updateReview = async (req, res, next) => {
   }
 };
 
-const deleteReview = async (req, res, next) => {
+const removeReview = async (req, res, next) => {
   try {
     if (!req.user) return res;
 
@@ -186,4 +186,4 @@ const getAllReviews = async (req, res, next) => {
   }
 };
 
-export { createReview, updateReview, deleteReview, getAllReviews }
+export { createReview, updateReview, removeReview, getAllReviews }

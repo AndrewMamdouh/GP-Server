@@ -36,7 +36,7 @@ const createPackage = async (req, res, next) => {
     // Create package in our database
     await Package.create({
       ...validPackageInfo,
-      owner: userInfo._id,
+      owner: isFreelancer._id,
     });
 
     return res.status(CREATED).json({});

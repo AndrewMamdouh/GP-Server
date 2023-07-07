@@ -5,7 +5,7 @@ export const PackageSchema = new Schema({
   owner: { type: Schema.Types.ObjectId, ref: "Freelancer" },
   photosNum: { type: Number, required: true },
   description: { type: String, required: true },
-  price: { type: String, required: true }
+  price: { type: Number, required: true }
 });
 
 const PackageModel = model("Package", PackageSchema);

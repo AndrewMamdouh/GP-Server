@@ -220,14 +220,10 @@ const searchFreelancers = async (req, res, next) => {
     const results = await Freelancer.find(
       {
         $or: [{ username: { $regex: regex } }, { fullName: { $regex: regex } }],
-      },
-      {
-        __v: false,
-        password: false,
       }
-    );
+    ).distinct('_id');
 
-    return res.status(OK).json({ results });
+    return res.status(OK).json(results);
   } catch (err) {
     return next(err);
   }

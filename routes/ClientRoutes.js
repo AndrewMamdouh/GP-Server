@@ -9,7 +9,8 @@ import {
   searchFreelancers,
   searchPortfolioItems,
   createBookingOrder,
-  completeBookingOrder
+  completeBookingOrder,
+  getAllBookingOrders
 } from "../controllers/ClientController.js";
 import errorHandler from "../middlewares/errorHandler.js";
 import authHandler from "../middlewares/authHandler.js";
@@ -25,5 +26,6 @@ ClientRouter.route("/fav").post(authHandler, addToFavList, errorHandler);
 ClientRouter.route("/fav/:id").delete(authHandler, removeFromFavList, errorHandler);
 ClientRouter.route("/orders/create").post(authHandler, createBookingOrder, errorHandler);
 ClientRouter.route("/orders/complete").post(authHandler, completeBookingOrder, errorHandler);
+ClientRouter.route("/orders/me").get(authHandler, getAllBookingOrders, errorHandler);
 
 export default ClientRouter;

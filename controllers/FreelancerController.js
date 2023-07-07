@@ -195,4 +195,27 @@ const refuseBookingOrder = async (req, res, next) => {
   }
 };
 
-export { createFreelancer, getFreelancer, acceptBookingOrder, refuseBookingOrder };
+const getAllBookingOrders = async (req, res, next) => {
+  try {
+    if (!req.user) return res;
+
+    const { id: userId } = req.user;
+
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
+
+    if (isClient) return res.status(FORBIDDEN).json({});
+    if (!isFreelancer) return res.status(NOT_FOUND).json({});
+
+     const orders = await BookingOrder.find({ to: isFreelancer._id }, {
+      __v: false,
+      to: false
+     });
+
+    return res.status(OK).json(orders);
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export { createFreelancer, getFreelancer, acceptBookingOrder, refuseBookingOrder, getAllBookingOrders };

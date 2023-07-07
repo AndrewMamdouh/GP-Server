@@ -348,6 +348,29 @@ const completeBookingOrder = async (req, res, next) => {
   }
 };
 
+const getAllBookingOrders = async (req, res, next) => {
+  try {
+    if (!req.user) return res;
+
+    const { id: userId } = req.user;
+
+    const isFreelancer = await Freelancer.findById(userId);
+    const isClient = await Client.findById(userId);
+
+    if (isFreelancer) return res.status(FORBIDDEN).json({});
+    if (!isClient) return res.status(NOT_FOUND).json({});
+
+     const orders = await BookingOrder.find({ from: isClient._id }, {
+      __v: false,
+      from: false
+     });
+
+    return res.status(OK).json(orders);
+  } catch (err) {
+    return next(err);
+  }
+};
+
 export {
   createClient,
   getClient,
@@ -357,5 +380,6 @@ export {
   searchFreelancers,
   searchPortfolioItems,
   createBookingOrder,
-  completeBookingOrder
+  completeBookingOrder,
+  getAllBookingOrders
 };

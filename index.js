@@ -13,6 +13,7 @@ import PackageRouter from "./routes/PackageRoutes.js";
 import ReviewRouter from "./routes/ReviewRoutes.js";
 import PortfolioItemRouter from "./routes/PortfolioItemRoutes.js";
 import HomeRouter from "./routes/HomeRoutes.js";
+import DataRouter from "./routes/DataRoutes.js";
 
 dotenv.config();
 const { PORT, MONGODB_URI } = process.env;
@@ -39,6 +40,7 @@ app.use("/api/v1/packages", PackageRouter);
 app.use("/api/v1/reviews", ReviewRouter);
 app.use("/api/v1/portfolio", PortfolioItemRouter);
 app.use("/api/v1/home", HomeRouter);
+app.use("/api/v1/data", DataRouter);
 
 
 const startServer = async () => {

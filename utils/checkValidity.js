@@ -3,7 +3,7 @@ import { default as isItUrl } from "validator/lib/isURL.js";
 
 export const isNull = (field) => field == null;
 
-export const isEmpty = (field) => isItEmpty(field.trim());
+export const isEmpty = (field) => isItEmpty(field);
 
 export const isArray = (arr) => Array.isArray(arr);
 

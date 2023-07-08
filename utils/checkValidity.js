@@ -1,4 +1,4 @@
-import { default as isItEmpty } from "validator/lib/isempty.js";
+import { default as isItEmpty } from "validator/lib/isEmpty.js";
 import { default as isItUrl } from "validator/lib/isURL.js";
 
 export const isNull = (field) => field == null;

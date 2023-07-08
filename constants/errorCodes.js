@@ -111,7 +111,7 @@ export const errorCodes = {
 
   [errorEnum.INVALID_FULLNAME]: {
     statusCode: httpResponseCodes.BAD_REQUEST,
-    message: "Full name must be at most 3 words each 4 or more characters.",
+    message: "Full name must be at most 3 words (first name is 4 or more characters).",
   },
 
   [errorEnum.INVALID_EMAIL]: {

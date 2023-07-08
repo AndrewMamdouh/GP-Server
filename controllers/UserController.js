@@ -5,9 +5,7 @@ import { hashSync, compareSync } from "bcrypt";
 import { errorEnum, httpResponseCodes } from "../constants/errorCodes.js";
 import UpdateProfileService from "../services/UpdateProfileService.js";
 import { userTypes } from "../constants/models.js";
-import { verifyToken } from "../utils/jwt.js";
 import AppError from "../constants/AppError.js";
-import { tokenTypes } from "../constants/jwt.js";
 import SendVerificationEmail from "../services/SendVerificationEmail.js";
 import SendResetPasswordEmail from "../services/SendResetPasswordEmail.js";
 import userDataValidator from "../utils/userDataValidator.js";
@@ -15,7 +13,7 @@ import { userData } from "../constants/userData.js";
 
 const { EMAIL, PASSWORD } = userData;
 const { NO_CONTENT, NOT_FOUND, OK } = httpResponseCodes;
-const { INVALID_AUTH, EMAIL_VERIFIED, EMAIL_NOT_FOUND, PASSWORD_MATCH, OTP_EXPIRED, INVALID_OTP } =
+const { EMAIL_VERIFIED, EMAIL_NOT_FOUND, PASSWORD_MATCH, OTP_EXPIRED, INVALID_OTP } =
   errorEnum;
 
 const getProfile = async (req, res, next) => {

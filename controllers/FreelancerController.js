@@ -69,7 +69,7 @@ const createFreelancer = async (req, res, next) => {
       address: {
         name: result instanceof AppError || !result.address.state ? "Egypt" : result.address.state,
         location: {
-          coordinates: result instanceof AppError ? null : validFreelancerInfo.address,
+          coordinates: result instanceof AppError ? [30.033333, 31.233334] : validFreelancerInfo.address,
         },
       },
     };

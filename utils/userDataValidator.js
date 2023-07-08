@@ -129,6 +129,7 @@ const userDataValidator = (dataType, data) => {
           if (isNull(data))
             throw new AppError(ALL_FIELDS_REQUIRED);
     }
+    return true;
   };
   
 export default userDataValidator;

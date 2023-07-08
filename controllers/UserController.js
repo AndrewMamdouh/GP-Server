@@ -90,7 +90,7 @@ const sendVerification = async (req, res, next) => {
       await Otp.create({
         _userId: userInfo._id,
         otp,
-        model: userInfo.constructor.modelName
+        docModel: userInfo.constructor.modelName
       });
     }
     return res.status(NO_CONTENT).send();
@@ -137,7 +137,7 @@ const sendReset = async (req, res, next) => {
       await Otp.create({
         _userId: userInfo._id,
         otp,
-        model: userInfo.constructor.modelName
+        docModel: userInfo.constructor.modelName
       });
     }
     return res.status(NO_CONTENT).send();

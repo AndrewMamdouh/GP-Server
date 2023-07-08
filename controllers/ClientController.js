@@ -61,7 +61,7 @@ const createClient = async (req, res, next) => {
     await Otp.create({
       _userId: newClient._id,
       otp,
-      model: "Client"
+      docModel: "Client"
     });
 
     return res.status(CREATED).json({});

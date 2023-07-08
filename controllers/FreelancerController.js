@@ -83,7 +83,7 @@ const createFreelancer = async (req, res, next) => {
     await Otp.create({
       _userId: newFreelancer._id,
       otp,
-      model: "Freelancer"
+      docModel: "Freelancer"
     });
 
     return res.status(CREATED).json({});

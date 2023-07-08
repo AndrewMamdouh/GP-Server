@@ -9,6 +9,7 @@ export const errorEnum = {
   EMAIL_EXIST: 'EMAIL_EXIST',
   REVIEW_EXIST: 'REVIEW_EXIST',
   FAV_EXIST: 'FAV_EXIST',
+  CHAT_EXIST: 'CHAT_EXIST',
   INVALID_USERNAME: 'INVALID_USERNAME',
   INVALID_FULLNAME: 'INVALID_FULLNAME',
   INVALID_EMAIL: 'INVALID_EMAIL',
@@ -40,7 +41,9 @@ export const errorEnum = {
   IN_PROGRESS_ORDER: 'IN_PROGRESS_ORDER',
   NO_ACTIVE_ORDER: 'NO_ACTIVE_ORDER',
   NO_PENDING_ORDER: 'NO_PENDING_ORDER',
-  ACCOUNT_SUSPENDED: 'ACCOUNT_SUSPENDED'
+  NO_CHAT: 'NO_CHAT',
+  ACCOUNT_SUSPENDED: 'ACCOUNT_SUSPENDED',
+  CLIENT_TALK_CLIENT: 'CLIENT_TALK_CLIENT'
 }
 
 export const httpResponseCodes = {
@@ -94,6 +97,11 @@ export const errorCodes = {
   [errorEnum.FAV_EXIST]: {
     statusCode: httpResponseCodes.CONFLICT,
     message: "Freelancer has already been added to favorites before.",
+  },
+
+  [errorEnum.CHAT_EXIST]: {
+    statusCode: httpResponseCodes.CONFLICT,
+    message: "Client has already created chat with same freelancer before.",
   },
 
   [errorEnum.INVALID_USERNAME]: {
@@ -251,8 +259,18 @@ export const errorCodes = {
     message: "No pending order has been found.",
   },
 
+  [errorEnum.NO_CHAT]: {
+    statusCode: httpResponseCodes.NOT_FOUND,
+    message: "No chat has been created between client and freelancer.",
+  },
+
   [errorEnum.ACCOUNT_SUSPENDED]: {
     statusCode: httpResponseCodes.UNAUTHORIZED,
     message: "This account has been suspended.",
+  },
+
+  [errorEnum.CLIENT_TALK_CLIENT]: {
+    statusCode: httpResponseCodes.BAD_REQUEST,
+    message: "Clients can't have chat with each other.",
   },
 };

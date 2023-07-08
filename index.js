@@ -1,7 +1,6 @@
 import express from "express";
 import * as dotenv from "dotenv";
 import helmet from "helmet";
-//import cors from "cors";
 import connectDB from "./mongodb/connect.js";
 import AuthRouter from "./routes/AuthRoutes.js";
 import UserRouter from "./routes/UserRoutes.js";
@@ -19,7 +18,6 @@ const { PORT, MONGODB_URI } = process.env;
 
 const app = express();
 app.use(helmet());
-//app.use(cors());
 app.use(express.json({ limit: "5mb" }));
 
 app.use("/api/v1/auth", AuthRouter);
@@ -37,7 +35,7 @@ app.use("/api/v1/chat", ChatRouter);
 const startServer = async () => {
   try {
     await connectDB(MONGODB_URI);
-    app.listen(PORT, () =>
+    app.listen(PORT || 8080, () =>
       console.log(`Server started on http://localhost:${PORT}`)
     );
   } catch (error) {

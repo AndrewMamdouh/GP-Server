@@ -23,5 +23,8 @@
     "nodemailer": "^6.9.2",
     "nodemon": "^2.0.20",
     "validator": "^13.9.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
